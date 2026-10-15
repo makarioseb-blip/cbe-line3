@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>لوحة متابعة خط إنتاج 3 - البنك المركزي المصري</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<script>
+
+tailwind.config = {
+
+theme: {
+
+extend: {
+
+colors: {
+
+cbeBlue: '#1F4E79',
+
+cbeDark: '#0d233a',
+
+cbeGreen: '#375623',
+
+}
+
+}
+
+}
+
+}
+
+</script>
+
+<style>
+
+input:focus {
+
+background-color: #ffffff !important;
+
+border-color: #1F4E79 !important;
+
+box-shadow: 0 0 0 2px rgba(31, 78, 121, 0.2);
+
+}
+
+</style>
+
+</head>
+
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col text-gray-800">
+
+
+
+<!-- Header -->
+
+<header class="bg-cbeDark text-white shadow-md sticky top-0 z-50 border-b border-blue-900">
+
+<div class="container mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-center">
+
+<div class="flex items-center space-x-3 space-x-reverse mb-2 md:mb-0">
+
+<div class="bg-cbeBlue p-2.5 rounded-lg text-xl shadow-inner">
+
+<i class="fa-solid fa-industry"></i>
+
+</div>
+
+<div>
+
+<h1 class="text-lg font-bold">لوحة متابعة خط الإنتاج (خط 3) - سحابي لحظي</h1>
+
+<p class="text-xs text-gray-300">الإدارة العامة لطباعة أوراق النقد - البنك المركزي المصري</p>
+
+</div>
+
+</div>
+
+<div class="flex items-center space-x-3 space-x-reverse">
+
+<div id="sync-status" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center shadow">
+
+<i class="fa-solid fa-cloud ml-1.5"></i> متصل بالسحابة لحظياً
+
+</div>
+
+<button onclick="openQRModal()" class="bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center shadow">
+
+<i class="fa-solid fa-qrcode ml-1.5"></i> باركود الشيت
+
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+
+
+<!-- Main Container -->
+
+<main class="container mx-auto px-4 py-6 flex-grow space-y-6">
+
+
+
+<!-- Quick Stats Cards -->
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+<!-- Attendance Card -->
+
+<div class="bg-white p-4.5 rounded-xl shadow-sm border-r-4 border-blue-600 border border-gray-100">
+
+<div class="flex justify-between items-center">
+
+<div>
+
+<p class="text-xs text-gray-500 font-medium">إجمالي الحضور (تلقائي)</p>
+
+<h3 class="text-2xl font-extrabold text-gray-800 mt-1" id="stat-attendance">28</h3>
+
+</div>
+
+<div class="bg-blue-50 text-blue-600 p-2.5 rounded-lg text-lg">
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+</div>
+
+<div class="mt-2 text-xs text-gray-500 flex justify-between border-t pt-2">
+
+<span>وردية 1: <strong id="stat-s1" class="text-gray-700">13</strong></span>
+
+<span>وردية 2: <strong id="stat-s2" class="text-gray-700">10</strong></span>
+
+<span>إشراف: <strong id="stat-sup" class="text-gray-700">5</strong></span>
+
+</div>
+
+</div>
+
+
+
+<!-- Active Machines Card -->
+
+<div class="bg-white p-4.5 rounded-xl shadow-sm border-r-4 border-green-600 border border-gray-100">
+
+<div class="flex justify-between items-center">
+
+<div>
+
+<p class="text-xs text-gray-500 font-medium">الماكينات النشطة / الإجمالي</p>
+
+<h3 class="text-2xl font-extrabold text-gray-800 mt-1" id="stat-active-machines">3 / 5</h3>
+
+</div>
+
+<div class="bg-green-50 text-green-600 p-2.5 rounded-lg text-lg">
+
+<i class="fa-solid fa-circle-check"></i>
+
+</div>
+
+</div>
+
+<p class="mt-2 text-xs text-green-700 font-medium border-t pt-2">خط إنتاج رقم 3 يعمل بانتظام</p>
+
+</div>
+
+
+
+<!-- Total Production Card -->
+
+<div class="bg-white p-4.5 rounded-xl shadow-sm border-r-4 border-amber-500 border border-gray-100">
+
+<div class="flex justify-between items-center">
+
+<div>
+
+<p class="text-xs text-gray-500 font-medium">إجمالي إنتاج الماكينات المسجل</p>
+
+<h3 class="text-2xl font-extrabold text-gray-800 mt-1" id="stat-total-prod">0</h3>
+
+</div>
+
+<div class="bg-amber-50 text-amber-600 p-2.5 rounded-lg text-lg">
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+</div>
+
+</div>
+
+<p class="mt-2 text-xs text-gray-500 border-t pt-2">تحديث تلقائي سحابي</p>
+
+</div>
+
+
+
+<!-- Maintenance Status Card -->
+
+<div class="bg-white p-4.5 rounded-xl shadow-sm border-r-4 border-purple-600 border border-gray-100">
+
+<div class="flex justify-between items-center">
+
+<div>
+
+<p class="text-xs text-gray-500 font-medium">حالة الصيانة الدورية</p>
+
+<h3 class="text-xl font-extrabold text-purple-700 mt-1" id="stat-maint-status">مكتملة (0/10)</h3>
+
+</div>
+
+<div class="bg-purple-50 text-purple-600 p-2.5 rounded-lg text-lg">
+
+<i class="fa-solid fa-screwdriver-wrench"></i>
+
+</div>
+
+</div>
+
+<p class="mt-2 text-xs text-gray-500 border-t pt-2">تتحدث حسب حالة فحص الماكينات</p>
+
+</div>
+
+</div>
+
+
+
+<!-- Section 1: Production Table -->
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+<div class="bg-cbeBlue text-white px-5 py-3.5 flex justify-between items-center">
+
+<div class="flex items-center space-x-2 space-x-reverse">
+
+<i class="fa-solid fa-table-cells ml-2"></i>
+
+<h2 class="text-md font-bold">جدول ماكينات الإنتاج (خط 3) - Production Log</h2>
+
+</div>
+
+<div>
+
+<span class="text-xs text-blue-200"><i class="fa-solid fa-bolt ml-1"></i> حفظ وتحديث سحابي مباشر</span>
+
+</div>
+
+</div>
+
+<div class="overflow-x-auto p-2">
+
+<table class="w-full text-right border-collapse" id="production-table">
+
+<thead>
+
+<tr class="bg-gray-100 text-gray-700 text-xs uppercase font-bold border-b border-gray-200">
+
+<th class="p-3 w-48">اسم الماكينة الثابت</th>
+
+<th class="p-3 w-36">رقم أمر الإنتاج</th>
+
+<th class="p-3 w-40">الفئة المنتجة</th>
+
+<th class="p-3 text-center">الإنتاج اليومي</th>
+
+<th class="p-3 text-center">12 PM</th>
+
+<th class="p-3 text-center">3 PM</th>
+
+<th class="p-3 text-center">5 PM</th>
+
+<th class="p-3 text-center">8 PM</th>
+
+<th class="p-3 text-center">إجمالي الإنتاج</th>
+
+<th class="p-3">ملاحظات / الحالة</th>
+
+</tr>
+
+</thead>
+
+<tbody class="divide-y divide-gray-100 text-sm text-gray-700" id="prod-tbody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+
+<!-- Section 2: Attendance & Maintenance -->
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+
+<!-- Attendance Summary -->
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden lg:col-span-1">
+
+<div class="bg-gray-800 text-white px-4.5 py-3 flex justify-between items-center">
+
+<h3 class="font-bold text-sm"><i class="fa-solid fa-users-line ml-2"></i> سجل الحضور والورديات</h3>
+
+<span class="text-xs text-gray-300">تحديث تلقائي</span>
+
+</div>
+
+<div class="p-4 space-y-2.5 text-sm">
+
+<div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg border border-blue-200">
+
+<span class="font-bold text-cbeBlue">إجمالي الحضور (تلقائي)</span>
+
+<input type="text" id="input-att-total" readonly value="28" class="w-24 text-center font-extrabold text-cbeBlue bg-white border border-blue-300 rounded px-2 py-1 shadow-inner focus:outline-none">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">الوردية الأولى</span>
+
+<input type="text" id="input-att-s1" value="13" class="w-24 text-center font-bold text-blue-600 bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">الوردية الثانية</span>
+
+<input type="text" id="input-att-s2" value="10" class="w-24 text-center font-bold text-blue-600 bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">الوردية الثالثة</span>
+
+<input type="text" id="input-att-s3" value="0" class="w-24 text-center font-bold text-gray-600 bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">الغياب</span>
+
+<input type="text" id="input-att-abs" value="0" class="w-24 text-center font-bold text-red-600 bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">إجازات واستئذان</span>
+
+<input type="text" id="input-att-exc" value="0" class="w-24 text-center font-bold text-amber-600 bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+
+<span class="font-medium text-gray-600">الإشراف</span>
+
+<input type="text" id="input-att-sup" value="5" class="w-24 text-center font-bold text-cbeBlue bg-white border border-gray-300 rounded px-2 py-1 shadow-inner focus:outline-none" oninput="triggerCloudSave()">
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Maintenance Schedule -->
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden lg:col-span-2">
+
+<div class="bg-cbeGreen text-white px-4.5 py-3 flex justify-between items-center">
+
+<h3 class="font-bold text-sm"><i class="fa-solid fa-screwdriver-wrench ml-2"></i> جدول صيانة ماكينات خط 3 (أسبوعية وشهرية)</h3>
+
+<span class="text-xs bg-green-800 px-2.5 py-1 rounded-lg">فحص فني دقيق</span>
+
+</div>
+
+<div class="overflow-x-auto p-4">
+
+<table class="w-full text-right border-collapse text-sm">
+
+<thead>
+
+<tr class="bg-gray-100 text-gray-700 text-xs font-bold border-b border-gray-200">
+
+<th class="p-3">اسم الماكينة الثابت</th>
+
+<th class="p-3 text-center">الصيانة الأسبوعية</th>
+
+<th class="p-3 text-center">حالة الأسبوعية</th>
+
+<th class="p-3 text-center">الصيانة الشهرية</th>
+
+<th class="p-3 text-center">حالة الشهرية</th>
+
+</tr>
+
+</thead>
+
+<tbody class="divide-y divide-gray-100 text-gray-700" id="maint-tbody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+</main>
+
+
+
+<!-- QR Modal -->
+
+<div id="qrModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center p-4">
+
+<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center space-y-4">
+
+<div class="flex justify-between items-center border-b pb-3">
+
+<h3 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-qrcode text-blue-600 ml-2"></i> باركود الدخول للشيت</h3>
+
+<button onclick="closeQRModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+
+</div>
+
+<p class="text-xs text-gray-500">امسح الكود بهاتفك للوصول المباشر للوحة ومتابعة الإنتاج لحظياً</p>
+
+<div class="flex justify-center my-4">
+
+<div id="qrcode" class="p-3 bg-white border rounded-xl shadow-sm inline-block"></div>
+
+</div>
+
+<p id="current-url-text" class="text-xs text-blue-600 font-mono break-all bg-gray-50 p-2 rounded border"></p>
+
+<div class="flex justify-end space-x-2 space-x-reverse pt-2">
+
+<button onclick="closeQRModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm">إغلاق</button>
+
+<button onclick="printQR()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow">طباعة الكود</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-800 text-gray-400 text-center py-4 mt-8 text-xs">
+
+<p>البنك المركزي المصري - الإدارة العامة لطباعة أوراق النقد | نظام إدارة ومتابعة خط الإنتاج 3 &copy; 2026</p>
+
+</footer>
+
+
+
+<!-- Zero-Config Cloud Sync Logic via KVDB.io -->
+
+<script>
+
+const CLOUD_URL = "https://kvdb.io/CBE_Line3_Production_2026_CBE/data";
+
+
+
+let defaultProdData = [
+
+{ machine: "Super Simultan 3", order: "6005/9", denom: "10 جنيه مصري", daily: "80", t12: "-", t3: "-", t5: "-", t8: "-", total: "265", notes: "نشط ومنتظم" },
+
+{ machine: "Super Orlof Intaglio 5", order: "6005/9", denom: "10 جنيه مصري", daily: "-", t12: "-", t3: "-", t5: "-", t8: "-", total: "إعداد", notes: "جاري التجهيز" },
+
+{ machine: "Super Orlof Intaglio 6", order: "6025/5", denom: "200 جنيه مصري", daily: "-", t12: "-", t3: "-", t5: "-", t8: "-", total: "870", notes: "نشط" },
+
+{ machine: "Opti Nota 1", order: "6005/9", denom: "10 جنيه مصري", daily: "-", t12: "-", t3: "-", t5: "-", t8: "-", total: "توقف", notes: "توقف مؤقت" },
+
+{ machine: "Check Numero Protecta 3", order: "6021/9", denom: "50 جنيه مصري", daily: "80", t12: "-", t3: "-", t5: "-", t8: "-", total: "806282", notes: "تشغيل مستمر" }
+
+];
+
+
+
+let defaultMaintData = [
+
+{ machine: "Super Simultan 3", wDate: "12-10", wStat: true, mDate: "21-10", mStat: false },
+
+{ machine: "Super Orlof Intaglio 5", wDate: "11-10", wStat: true, mDate: "19-10", mStat: false },
+
+{ machine: "Super Orlof Intaglio 6", wDate: "13-10", wStat: true, mDate: "20-10", mStat: false },
+
+{ machine: "Opti Nota 1", wDate: "14-10", wStat: true, mDate: "18-10", mStat: false },
+
+{ machine: "Check Numero Protecta 3", wDate: "15-10", wStat: true, mDate: "22-10", mStat: false }
+
+];
+
+
+
+let prodData = defaultProdData;
+
+let maintData = defaultMaintData;
+
+let saveTimeout = null;
+
+
+
+async function fetchCloudData() {
+
+try {
+
+let res = await fetch(CLOUD_URL);
+
+if (res.ok) {
+
+let data = await res.json();
+
+if (data && data.prod && data.maint && data.attendance) {
+
+prodData = data.prod;
+
+maintData = data.maint;
+
+
+document.getElementById('input-att-s1').value = data.attendance.s1 || 13;
+
+document.getElementById('input-att-s2').value = data.attendance.s2 || 10;
+
+document.getElementById('input-att-s3').value = data.attendance.s3 || 0;
+
+document.getElementById('input-att-abs').value = data.attendance.abs || 0;
+
+document.getElementById('input-att-exc').value = data.attendance.exc || 0;
+
+document.getElementById('input-att-sup').value = data.attendance.sup || 5;
+
+}
+
+}
+
+} catch (e) {
+
+console.log("Using local cache.");
+
+}
+
+renderProductionTable();
+
+renderMaintenanceTable();
+
+calculateAttendanceLive();
+
+}
+
+
+
+function triggerCloudSave() {
+
+calculateAttendanceLive();
+
+if (saveTimeout) clearTimeout(saveTimeout);
+
+saveTimeout = setTimeout(async () => {
+
+let attendance = {
+
+s1: document.getElementById('input-att-s1').value,
+
+s2: document.getElementById('input-att-s2').value,
+
+s3: document.getElementById('input-att-s3').value,
+
+abs: document.getElementById('input-att-abs').value,
+
+exc: document.getElementById('input-att-exc').value,
+
+sup: document.getElementById('input-att-sup').value,
+
+total: document.getElementById('input-att-total').value
+
+};
+
+
+
+let payload = { prod: prodData, maint: maintData, attendance: attendance };
+
+
+try {
+
+document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-rotate fa-spin ml-1.5"></i> جاري الحفظ...';
+
+await fetch(CLOUD_URL, {
+
+method: 'PUT',
+
+headers: { 'Content-Type': 'application/json' },
+
+body: JSON.stringify(payload)
+
+});
+
+document.getElementById('sync-status').className = "bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center shadow";
+
+document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud ml-1.5"></i> متصل بالسحابة لحظياً';
+
+} catch (e) {
+
+document.getElementById('sync-status').className = "bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center shadow";
+
+document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation ml-1.5"></i> خطأ في الاتصال';
+
+}
+
+}, 500);
+
+}
+
+
+
+function renderProductionTable() {
+
+const tbody = document.getElementById('prod-tbody');
+
+tbody.innerHTML = '';
+
+prodData.forEach((item, index) => {
+
+let tr = document.createElement('tr');
+
+tr.className = "hover:bg-blue-50/40 transition border-b border-gray-100";
+
+tr.innerHTML = `
+
+<td class="p-3 font-bold text-cbeBlue flex items-center space-x-2 space-x-reverse">
+
+<i class="fa-solid fa-gears text-gray-400 ml-1"></i>
+
+<span>${item.machine}</span>
+
+</td>
+
+<td class="p-3"><input type="text" value="${item.order || ''}" class="w-36 text-center font-bold bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 'order', this.value)" placeholder="رقم الأمر"></td>
+
+<td class="p-3"><input type="text" value="${item.denom || ''}" class="w-40 text-center font-bold text-indigo-700 bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 'denom', this.value)" placeholder="الفئة المنتجة"></td>
+
+<td class="p-3"><input type="text" value="${item.daily || ''}" class="w-24 text-center font-bold bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 'daily', this.value)"></td>
+
+<td class="p-3 text-center"><input type="text" value="${item.t12 || ''}" class="w-16 text-center bg-white border border-gray-300 rounded-lg px-1 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 't12', this.value)"></td>
+
+<td class="p-3 text-center"><input type="text" value="${item.t3 || ''}" class="w-16 text-center bg-white border border-gray-300 rounded-lg px-1 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 't3', this.value)"></td>
+
+<td class="p-3 text-center"><input type="text" value="${item.t5 || ''}" class="w-16 text-center bg-white border border-gray-300 rounded-lg px-1 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 't5', this.value)"></td>
+
+<td class="p-3 text-center"><input type="text" value="${item.t8 || ''}" class="w-16 text-center bg-white border border-gray-300 rounded-lg px-1 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 't8', this.value)"></td>
+
+<td class="p-3 text-center"><input type="text" value="${item.total || ''}" class="w-32 text-center font-extrabold text-gray-900 bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 'total', this.value)"></td>
+
+<td class="p-3"><input type="text" value="${item.notes || ''}" class="w-full text-xs bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none" oninput="updateProd(${index}, 'notes', this.value)"></td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+calculateSummaryStats();
+
+}
+
+
+
+function renderMaintenanceTable() {
+
+const tbody = document.getElementById('maint-tbody');
+
+tbody.innerHTML = '';
+
+maintData.forEach((item, index) => {
+
+let tr = document.createElement('tr');
+
+tr.className = "hover:bg-blue-50/40 transition border-b border-gray-100";
+
+tr.innerHTML = `
+
+<td class="p-3 font-bold text-gray-800"><i class="fa-solid fa-gear ml-2 text-cbeGreen"></i>${item.machine}</td>
+
+<td class="p-3 text-center"><input type="text" value="${item.wDate || ''}" class="w-32 text-center bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs shadow-sm" onchange="updateMaint(${index}, 'wDate', this.value)"></td>
+
+<td class="p-3 text-center">
+
+<button onclick="toggleMaint(${index}, 'wStat')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-sm ${item.wStat ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-500 border border-gray-300'}">
+
+${item.wStat ? '✔ تمت' : 'قيد الانتظار'}
+
+</button>
+
+</td>
+
+<td class="p-3 text-center"><input type="text" value="${item.mDate || ''}" class="w-32 text-center bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs shadow-sm" onchange="updateMaint(${index}, 'mDate', this.value)"></td>
+
+<td class="p-3 text-center">
+
+<button onclick="toggleMaint(${index}, 'mStat')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-sm ${item.mStat ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-500 border border-gray-300'}">
+
+${item.mStat ? '✔ تمت' : 'قيد الانتظار'}
+
+</button>
+
+</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+calculateSummaryStats();
+
+}
+
+
+
+function updateProd(index, field, value) {
+
+prodData[index][field] = value;
+
+calculateSummaryStats();
+
+triggerCloudSave();
+
+}
+
+
+
+function updateMaint(index, field, value) {
+
+maintData[index][field] = value;
+
+triggerCloudSave();
+
+}
+
+
+
+function toggleMaint(index, field) {
+
+maintData[index][field] = !maintData[index][field];
+
+renderMaintenanceTable();
+
+triggerCloudSave();
+
+}
+
+
+
+function calculateAttendanceLive() {
+
+let s1 = parseFloat(document.getElementById('input-att-s1').value) || 0;
+
+let s2 = parseFloat(document.getElementById('input-att-s2').value) || 0;
+
+let s3 = parseFloat(document.getElementById('input-att-s3').value) || 0;
+
+let sup = parseFloat(document.getElementById('input-att-sup').value) || 0;
+
+
+
+let totalAttendance = s1 + s2 + s3 + sup;
+
+document.getElementById('input-att-total').value = totalAttendance;
+
+document.getElementById('stat-attendance').innerText = totalAttendance;
+
+document.getElementById('stat-s1').innerText = s1;
+
+document.getElementById('stat-s2').innerText = s2;
+
+document.getElementById('stat-sup').innerText = sup;
+
+}
+
+
+
+function calculateSummaryStats() {
+
+let totalProdSum = 0;
+
+let activeMachinesCount = 0;
+
+let totalMachines = prodData.length;
+
+
+
+prodData.forEach(item => {
+
+let totalStr = String(item.total || '').replace(/,/g, '').trim();
+
+let totalNum = parseFloat(totalStr);
+
+if (!isNaN(totalNum)) {
+
+totalProdSum += totalNum;
+
+}
+
+
+
+let notes = String(item.notes || '').toLowerCase();
+
+let totalVal = String(item.total || '').trim();
+
+if (totalVal !== "توقف" && totalVal !== "إعداد" && !notes.includes("توقف")) {
+
+activeMachinesCount++;
+
+}
+
+});
+
+
+
+document.getElementById('stat-total-prod').innerText = totalProdSum.toLocaleString();
+
+document.getElementById('stat-active-machines').innerText = activeMachinesCount + " / " + totalMachines;
+
+
+
+let totalMaintTasks = maintData.length * 2;
+
+let completedMaintTasks = 0;
+
+
+
+maintData.forEach(item => {
+
+if (item.wStat) completedMaintTasks++;
+
+if (item.mStat) completedMaintTasks++;
+
+});
+
+
+
+let maintStatusEl = document.getElementById('stat-maint-status');
+
+if (totalMaintTasks > 0 && completedMaintTasks === totalMaintTasks) {
+
+maintStatusEl.innerText = `مكتملة (${completedMaintTasks}/${totalMaintTasks})`;
+
+maintStatusEl.className = "text-xl font-extrabold text-green-700 mt-1";
+
+} else {
+
+maintStatusEl.innerText = `قيد التنفيذ (${completedMaintTasks}/${totalMaintTasks})`;
+
+maintStatusEl.className = "text-xl font-extrabold text-amber-600 mt-1";
+
+}
+
+}
+
+
+
+function openQRModal() {
+
+document.getElementById('qrModal').classList.remove('hidden');
+
+const currentUrl = window.location.href;
+
+document.getElementById('current-url-text').innerText = currentUrl;
+
+
+const qrContainer = document.getElementById('qrcode');
+
+qrContainer.innerHTML = '';
+
+new QRCode(qrContainer, {
+
+text: currentUrl,
+
+width: 180,
+
+height: 180,
+
+colorDark: "#0d233a",
+
+colorLight: "#ffffff",
+
+correctLevel: QRCode.CorrectLevel.H
+
+});
+
+}
+
+
+
+function closeQRModal() {
+
+document.getElementById('qrModal').classList.add('hidden');
+
+}
+
+
+
+function printQR() {
+
+window.print();
+
+}
+
+
+
+setInterval(() => {
+
+fetchCloudData();
+
+}, 3000);
+
+
+
+window.onload = function() {
+
+fetchCloudData();
+
+};
+
+</script>
+
+</body>
+
+</html> 
