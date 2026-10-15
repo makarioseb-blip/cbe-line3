@@ -151,6 +151,13 @@ const DEF = {
 };
 const S = JSON.parse(JSON.stringify(DEF));
 const $ = id => document.getElementById(id);
+
+function setStatus(type, message) {
+  const el = $("sync");
+  if (!el) return;
+  el.className = "pill" + (type ? " " + type : "");
+  el.textContent = message;
+}
 const COLS = [["order","w"],["denom","w"],["daily","n"],["t12",""],["t3",""],["t5",""],["t8",""],["total","n"],["notes","notes"]];
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
 
