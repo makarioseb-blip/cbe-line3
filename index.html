@@ -234,7 +234,7 @@ function queue(p){
 }
 /* ---------- المزامنة عبر Firebase Realtime Database (REST) ---------- */
 // الصق هنا رابط قاعدة البيانات من Firebase (بدون / في النهاية)
-const DB_URL = "cbeline3.firebasestorage.app";
+const DB_URL = "https://cbeline3-default-rtdb.firebaseio.com";
 const NODE = DB_URL + "/line3";
 
 function flat(o, p = "", out = {}){ for (const k in o){ const v = o[k], pp = p ? p + "/" + k : k; if (v && typeof v === "object") flat(v, pp, out); else out[pp] = v; } return out; }
