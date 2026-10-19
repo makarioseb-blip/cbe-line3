@@ -47,7 +47,9 @@ tbody tr:hover{background:var(--hov)}
 input{font:inherit;font-size:13px;text-align:center;color:var(--ink);background:var(--inbg);border:1px solid var(--inl);border-radius:8px;padding:6px 8px;width:100%;min-width:60px}
 input:focus{outline:2px solid rgba(37,99,235,.35);border-color:var(--acc)}
 input[readonly]{cursor:default}
+input.calc{background:var(--soft);font-weight:800;color:var(--acc)}
 td input.w{min-width:130px;font-weight:700}td input.n{font-weight:800}td input.notes{text-align:right;font-size:12px;min-width:140px}
+td input.calc{min-width:90px}
 .grid2{display:grid;gap:20px;grid-template-columns:1fr}
 @media(min-width:1024px){.grid2{grid-template-columns:1fr 2fr}}
 .att{padding:14px;display:grid;gap:8px}
@@ -58,6 +60,7 @@ td input.w{min-width:130px;font-weight:700}td input.n{font-weight:800}td input.n
 .st.on{background:rgba(22,163,74,.15);border-color:#16a34a;color:var(--ok)}
 .st:disabled{cursor:default;opacity:.7}
 .chart-container{padding:16px;position:relative;height:320px;}
+.note{padding:8px 18px;font-size:12px;color:var(--mut);border-top:1px solid var(--line)}
 footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-size:12px;margin-top:10px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal.open{display:flex}
@@ -96,8 +99,9 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <section class="card">
   <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span></div>
   <div class="scroll"><table>
-   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج</th><th>ملاحظات / الحالة</th></tr></thead>
+   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي (مجموع الفترات)</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج للأمر (كل الأيام)</th><th>ملاحظات / الحالة</th></tr></thead>
    <tbody id="prod"></tbody></table></div>
+  <div class="note">الإنتاج اليومي = مجموع خانات الفترات (12 / 3 / 5 / 8). إجمالي الإنتاج للأمر = مجموع الإنتاج اليومي لهذه الماكينة على نفس رقم الأمر في كل الأيام المسجلة. عند بداية يوم جديد تُرحَّل أرقام اليوم السابق تلقائياً للأرشيف وتُصفَّر خانات الفترات (يتم ذلك عند أول دخول للتعديل في اليوم الجديد).</div>
  </section>
 
  <!-- قسم الرسوم البيانية للإنتاج اليومي والشهري -->
@@ -151,14 +155,23 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-/* ---------- البيانات الافتراضية مع الأرشيف التاريخي للإنتاج ---------- */
+/* ---------- البيانات الافتراضية ----------
+   prod : الصف الحي لليوم الحالي (الفترات 12/3/5/8 تُدخل يدوياً، والإنتاج اليومي والإجمالي يُحسبان تلقائياً)
+   log  : أرشيف الأيام السابقة  log[التاريخ][مفتاح الماكينة] = {order, daily}
+          المفتاح "carry" = رصيد مرحَّل قبل بدء التسجيل في اللوحة (الأرقام القديمة للإجمالي) */
 const DEF = {
  prod: {
-  p0:{machine:"Super Simultan 3",order:"6005/9",denom:"10 جنيه مصري",daily:"80",t12:"-",t3:"-",t5:"-",t8:"-",total:"265",notes:"نشط ومنتظم"},
-  p1:{machine:"Super Orlof Intaglio 5",order:"6005/9",denom:"10 جنيه مصري",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"إعداد",notes:"جاري التجهيز"},
-  p2:{machine:"Super Orlof Intaglio 6",order:"6025/5",denom:"200 جنيه مصري",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"870",notes:"نشط"},
-  p3:{machine:"Opti Nota 1",order:"6005/9",denom:"10 جنيه مصري",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"توقف",notes:"توقف مؤقت"},
-  p4:{machine:"Check Numero Protecta 3",order:"6021/9",denom:"50 جنيه مصري",daily:"80",t12:"-",t3:"-",t5:"-",t8:"-",total:"806282",notes:"تشغيل مستمر"}},
+  p0:{machine:"Super Simultan 3",order:"6005/9",denom:"10 جنيه مصري",t12:"80",t3:"-",t5:"-",t8:"-",notes:"نشط ومنتظم"},
+  p1:{machine:"Super Orlof Intaglio 5",order:"6005/9",denom:"10 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"جاري التجهيز"},
+  p2:{machine:"Super Orlof Intaglio 6",order:"6025/5",denom:"200 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"نشط"},
+  p3:{machine:"Opti Nota 1",order:"6005/9",denom:"10 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"توقف مؤقت"},
+  p4:{machine:"Check Numero Protecta 3",order:"6021/9",denom:"50 جنيه مصري",t12:"80",t3:"-",t5:"-",t8:"-",notes:"تشغيل مستمر"}},
+ log: {
+  carry:{
+   p0:{order:"6005/9",daily:265},
+   p2:{order:"6025/5",daily:870},
+   p4:{order:"6021/9",daily:806282}}},
+ dayDate: "",
  maint: {
   m0:{machine:"Super Simultan 3",wDate:"12-10",wStat:true,mDate:"21-10",mStat:false},
   m1:{machine:"Super Orlof Intaglio 5",wDate:"11-10",wStat:true,mDate:"19-10",mStat:false},
@@ -166,11 +179,6 @@ const DEF = {
   m3:{machine:"Opti Nota 1",wDate:"14-10",wStat:true,mDate:"18-10",mStat:false},
   m4:{machine:"Check Numero Protecta 3",wDate:"15-10",wStat:true,mDate:"22-10",mStat:false}},
  att: {s1:"13",s2:"10",s3:"0",abs:"0",exc:"0",sup:"5"},
- history: {
-  // تخزين الإنتاج اليومي والشهري لكل تاريخ
-  "2026-10-14": { "Super Simultan 3": 250, "Super Orlof Intaglio 6": 800, "Check Numero Protecta 3": 750000 },
-  "2026-10-15": { "Super Simultan 3": 265, "Super Orlof Intaglio 6": 870, "Check Numero Protecta 3": 806282 }
- },
  updatedAt: ""
 };
 const S = JSON.parse(JSON.stringify(DEF));
@@ -182,10 +190,37 @@ function setStatus(type, message) {
   el.className = "pill" + (type ? " " + type : "");
   el.textContent = message;
 }
-const COLS = [["order","w"],["denom","w"],["daily","n"],["t12",""],["t3",""],["t5",""],["t8",""],["total","n"],["notes","notes"]];
+const COLS = [["order","w"],["denom","w"],["daily","n calc"],["t12",""],["t3",""],["t5",""],["t8",""],["total","n calc"],["notes","notes"]];
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
+const CALC = ["daily","total"];
 
-let doc = null, readOnly = true, pending = {}, timer = null, writing = false, prodChart = null;
+let doc = null, readOnly = true, pending = {}, timer = null, writing = false, prodChart = null, loaded = false;
+
+function num(v){ const n = parseFloat(String(v || "").replace(/,/g,"").trim()); return isNaN(n) ? 0 : n; }
+function fmt(n){ return n.toLocaleString("en-US"); }
+function todayStr(){ const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+
+/* ---------- حسابات الإنتاج ---------- */
+// الإنتاج اليومي = مجموع الفترات
+function dailyOf(r){ return num(r.t12) + num(r.t3) + num(r.t5) + num(r.t8); }
+// تاريخ اليوم الذي يخصه الصف الحي
+function liveDate(){ return S.dayDate || todayStr(); }
+// الأرشيف + اليوم الحي (الحي يحل محل أي أرشيف لنفس التاريخ منعاً للتكرار)
+function effLog(){
+ const L = {};
+ for (const d in (S.log || {})) L[d] = S.log[d];
+ const ld = liveDate(); L[ld] = {};
+ for (const k in S.prod){ const r = S.prod[k]; L[ld][k] = {order:r.order, daily:dailyOf(r)}; }
+ return L;
+}
+// إجمالي إنتاج الماكينة لنفس رقم الأمر في كل الأيام
+function orderTotal(k){
+ const o = String(S.prod[k].order || "").trim();
+ if (!o) return 0;
+ let s = 0; const L = effLog();
+ for (const d in L){ const e = L[d] && L[d][k]; if (e && String(e.order || "").trim() === o) s += num(e.daily); }
+ return s;
+}
 
 function build(){
  $("prod").innerHTML = Object.keys(S.prod).map(k =>
@@ -207,12 +242,16 @@ function build(){
 
 function paint(){
  document.querySelectorAll("input[data-g]").forEach(el => {
+  const g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
+  const isCalc = g === "prod" && CALC.includes(f);
+  el.readOnly = readOnly || isCalc;
   if (el === document.activeElement) return;
-  const g = el.dataset.g, f = el.dataset.f;
-  const v = g === "att" ? S.att[f] : S[g][el.dataset.k][f];
+  let v;
+  if (g === "att") v = S.att[f];
+  else if (isCalc) v = f === "daily" ? fmt(dailyOf(S.prod[k])) : fmt(orderTotal(k));
+  else v = S[g][k][f];
   const s = v == null ? "" : String(v);
   if (el.value !== s) el.value = s;
-  el.readOnly = readOnly;
  });
  document.querySelectorAll("button.st").forEach(b => {
   const on = S.maint[b.dataset.k][b.dataset.f];
@@ -224,18 +263,17 @@ function paint(){
  updateCharts();
 }
 
-function num(v){ const n = parseFloat(String(v || "").replace(/,/g,"").trim()); return isNaN(n) ? 0 : n; }
 function stats(){
  const a = S.att, tot = num(a.s1)+num(a.s2)+num(a.s3)+num(a.sup);
  $("att-total").value = tot; $("st-att").textContent = tot;
  $("st-s1").textContent = num(a.s1); $("st-s2").textContent = num(a.s2); $("st-sup").textContent = num(a.sup);
  let sum = 0, active = 0; const rows = Object.values(S.prod);
  rows.forEach(r => {
-  sum += num(r.daily);
-  const t = String(r.total||"").trim(), n = String(r.notes||"");
-  if (t !== "توقف" && t !== "إعداد" && !n.includes("توقف")) active++;
+  sum += dailyOf(r);
+  const n = String(r.notes||"");
+  if (!n.includes("توقف") && !n.includes("تجهيز") && !n.includes("إعداد")) active++;
  });
- $("st-prod").textContent = sum.toLocaleString("en-US");
+ $("st-prod").textContent = fmt(sum);
  $("st-act").textContent = active + " / " + rows.length;
  $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد";
  const m = Object.values(S.maint), all = m.length*2, done = m.reduce((s,x)=>s+(x.wStat?1:0)+(x.mStat?1:0),0), el = $("st-maint");
@@ -247,22 +285,15 @@ function stats(){
 
 function onEdit(e){
  const el = e.target, g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
+ if (readOnly || (g === "prod" && CALC.includes(f))) return;
  if (g === "att"){ S.att[f] = el.value; queue({att:{[f]:el.value}}); }
- else { 
-  S[g][k][f] = el.value; 
-  queue({[g]:{[k]:{[f]:el.value}}}); 
-  
-  // تحديث الأرشيف التاريخي للإنتاج اليومي تلقائياً عند التعديل
-  if(g === "prod" && (f === "daily" || f === "total")) {
-   const todayStr = new Date().toISOString().split('T')[0];
-   if(!S.history) S.history = {};
-   if(!S.history[todayStr]) S.history[todayStr] = {};
-   S.history[todayStr][S.prod[k].machine] = num(el.value);
-   queue({history: S.history});
-  }
+ else {
+  S[g][k][f] = el.value;
+  queue({[g]:{[k]:{[f]:el.value}}});
+  // تثبيت تاريخ الصف الحي عند أول تعديل
+  if (g === "prod" && !S.dayDate){ S.dayDate = todayStr(); queue({dayDate:S.dayDate}); }
  }
- stats();
- updateCharts();
+ paint();
 }
 
 function onToggle(e){
@@ -271,8 +302,24 @@ function onToggle(e){
  queue({maint:{[k]:{[f]:S.maint[k][f]}}}); paint();
 }
 
-/* ---------- إعداد ورسم الرسوم البيانية ---------- */
+/* ---------- ترحيل اليوم السابق تلقائياً ---------- */
+function checkRollover(){
+ if (readOnly || !loaded || !S.dayDate) return;
+ const t = todayStr();
+ if (S.dayDate >= t) return;
+ const old = S.dayDate, patch = {log:{[old]:{}}, prod:{}, dayDate:t};
+ for (const k in S.prod){
+  const r = S.prod[k], d = dailyOf(r);
+  if (d > 0) patch.log[old][k] = {order:r.order, daily:d};
+  patch.prod[k] = {t12:"-", t3:"-", t5:"-", t8:"-"};
+ }
+ if (!Object.keys(patch.log[old]).length) delete patch.log;
+ merge(S, patch); queue(patch); paint();
+}
+
+/* ---------- الرسوم البيانية ---------- */
 function initCharts(){
+ if (typeof Chart === "undefined") return;
  const ctx = $("productionChart").getContext("2d");
  prodChart = new Chart(ctx, {
   type: 'bar',
@@ -289,29 +336,24 @@ function initCharts(){
 function updateCharts(){
  if(!prodChart) return;
  const mode = $("chartViewMode").value;
- const history = S.history || {};
- const dates = Object.keys(history).sort();
+ const L = effLog();
+ const dates = Object.keys(L).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
 
  if(mode === 'daily') {
-  // عرض الإنتاج اليومي لكل ماكينة عبر الأيام المسجلة
-  const machineNames = Object.values(S.prod).map(p => p.machine);
-  const datasets = machineNames.map((mName, idx) => {
-   const colors = ['#2563eb', '#16a34a', '#f59e0b', '#9333ea', '#db2777'];
-   return {
-    label: mName,
-    data: dates.map(d => history[d]?.[mName] || 0),
-    backgroundColor: colors[idx % colors.length]
-   };
-  });
+  const colors = ['#2563eb', '#16a34a', '#f59e0b', '#9333ea', '#db2777'];
+  const datasets = Object.keys(S.prod).map((k, idx) => ({
+   label: S.prod[k].machine,
+   data: dates.map(d => num(L[d]?.[k]?.daily)),
+   backgroundColor: colors[idx % colors.length]
+  }));
   prodChart.data.labels = dates;
   prodChart.data.datasets = datasets;
  } else {
-  // عرض تجميعي حسب الشهور
   const monthsData = {};
   dates.forEach(d => {
-   const monthKey = d.substring(0, 7); // YYYY-MM
-   if(!monthsData[monthKey]) monthsData[monthKey] = 0;
-   Object.values(history[d]).forEach(val => { monthsData[monthKey] += num(val); });
+   const mk = d.substring(0, 7);
+   if(!monthsData[mk]) monthsData[mk] = 0;
+   Object.values(L[d]).forEach(e => { monthsData[mk] += num(e.daily); });
   });
   const monthLabels = Object.keys(monthsData).sort();
   prodChart.data.labels = monthLabels;
@@ -353,7 +395,7 @@ async function getToken(){
  return tok.id;
 }
 function okStatus(){ setStatus(readOnly ? "warn" : "", readOnly ? "👁️ عرض فقط — يتحدث تلقائياً" : "☁️ متصل ومحدَّث لحظياً"); }
-function applyAuth(){ readOnly = !tok; $("authBtn").textContent = tok ? "🔓 خروج" : "🔒 دخول للتعديل"; okStatus(); paint(); }
+function applyAuth(){ readOnly = !tok; $("authBtn").textContent = tok ? "🔓 خروج" : "🔒 دخول للتعديل"; okStatus(); paint(); checkRollover(); }
 function authClick(){ if (tok){ tok = null; saveTok(); pending = {}; applyAuth(); } else { $("pwErr").textContent = ""; $("pw").value = ""; $("pwModal").classList.add("open"); $("pw").focus(); } }
 function closePw(){ $("pwModal").classList.remove("open"); }
 async function doLogin(){
@@ -388,8 +430,10 @@ async function pull(){
   if (!r.ok) throw new Error(r.status);
   const d = await r.json();
   if (d){ const keep = JSON.parse(JSON.stringify(pending)); merge(S, d); merge(S, keep); }
+  loaded = true;
   if (!Object.keys(pending).length && !writing) okStatus();
   paint();
+  checkRollover();
  } catch (e) { setStatus("warn", "⚠️ تعذر الاتصال بالسحابة"); }
 }
 let pullTimer = null;
