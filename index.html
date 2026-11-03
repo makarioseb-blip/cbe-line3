@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>لوحة متابعة خط الإنتاج 3 - البنك المركزي المصري</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{--bg:#f1f4f8;--card:#fff;--ink:#1f2937;--mut:#6b7280;--line:#e5e7eb;--soft:#f3f4f6;--inbg:#fff;--inl:#cbd5e1;--head:#0d233a;--blue:#1F4E79;--green:#375623;--dark:#1f2937;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--acc:#1F4E79;--hov:#eef4fb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1220;--card:#131c2e;--ink:#e5e7eb;--mut:#9ca3af;--line:#243049;--soft:#18233a;--inbg:#0f1726;--inl:#33415c;--blue:#1d4668;--green:#2c4a1c;--dark:#18233a;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--acc:#7ab8ee;--hov:#18233a}}
@@ -66,6 +65,7 @@ input.late{border-color:var(--bad);background:rgba(185,28,28,.1)}
 .st:disabled{cursor:default;opacity:.7}
 .chart-container{padding:16px;position:relative;height:320px}
 .chart-container.sm{height:280px}
+.chart-container canvas{display:block}
 .tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
 .tb input[type=search]{max-width:240px;text-align:right}
 .tb .sp{flex:1}
@@ -273,7 +273,7 @@ const COLS = [["order","w"],["denom","w"],["status","sel"],["target","n"],["dail
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
 const PCOL = ["#2563eb","#16a34a","#f59e0b","#9333ea","#db2777","#0ea5e9","#84cc16"];
 
-let readOnly = true, pending = {}, timer = null, writing = false, mainChart = null, denomChart = null, periodChart = null;
+let readOnly = true, pending = {}, timer = null, writing = false;
 
 function setStatus(type, message){ const el = $("sync"); el.className = "pill" + (type ? " " + type : ""); el.textContent = message; }
 function num(v){ const n = parseFloat(String(v || "").replace(/,/g,"").trim()); return isNaN(n) ? 0 : n; }
@@ -312,7 +312,6 @@ function build(){
  document.querySelectorAll("[data-g]").forEach(el => { el.addEventListener("input", onEdit); el.addEventListener("change", onChange); });
  document.querySelectorAll("button.st").forEach(b => b.addEventListener("click", onToggle));
  $("q").addEventListener("input", filterRows);
- initCharts();
 }
 
 function filterRows(){
@@ -470,53 +469,148 @@ function exportCSV(){
 }
 function printReport(){ document.body.classList.remove("qrp"); window.print(); }
 
-/* ---------- الرسوم البيانية ---------- */
-function mkChart(id, type, opts){ return new Chart($(id).getContext("2d"), {type, data:{labels:[],datasets:[]}, options:Object.assign({responsive:true, maintainAspectRatio:false}, opts || {})}); }
-function initCharts(){
- mainChart = mkChart("productionChart", "bar");
- denomChart = mkChart("denomChart", "doughnut", {plugins:{legend:{position:"bottom"}}});
- periodChart = mkChart("periodChart", "bar", {scales:{y:{beginAtZero:true}}});
+/* ---------- الرسوم البيانية (محرك مدمج بدون مكتبات خارجية) ---------- */
+const CFONT = "12px Cairo,Tahoma,'Segoe UI',sans-serif";
+function fmt(n){ const r = Math.round(n * 100) / 100; return Math.abs(r) >= 1000 ? r.toLocaleString("en-US") : String(r); }
+function niceMax(m){ if (m <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(m))), f = m / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
+function setupCanvas(cv){
+ const box = cv.parentElement, cs = getComputedStyle(box);
+ const w = Math.floor(box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+ const h = Math.floor(box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom));
+ if (w < 60 || h < 60) return null;
+ const dpr = window.devicePixelRatio || 1;
+ cv.style.width = w + "px"; cv.style.height = h + "px";
+ cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+ const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+ return {ctx, w, h};
 }
-function themeChart(c){
+function chartMsg(ctx, w, h, t){ ctx.fillStyle = css("--mut"); ctx.font = "14px Cairo,Tahoma,sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(t, w / 2, h / 2); }
+function chartLegend(ctx, w, items){
+ ctx.font = CFONT; ctx.textBaseline = "middle"; ctx.textAlign = "right";
+ let x = w - 4, y = 10; const rowH = 20, gap = 14;
+ items.forEach(it => {
+  const need = ctx.measureText(it.label).width + 14 + gap;
+  if (x - need < 4 && x < w - 4){ x = w - 4; y += rowH; }
+  ctx.fillStyle = it.color; ctx.fillRect(x - 10, y - 5, 10, 10);
+  ctx.fillStyle = css("--mut"); ctx.fillText(it.label, x - 14, y);
+  x -= need;
+ });
+ return y + 14;
+}
+function drawAxisChart(cv, type, labels, sets, emptyMsg){
+ const s = setupCanvas(cv); if (!s) return; const {ctx, w, h} = s;
  const mut = css("--mut"), line = css("--line");
- c.options.color = mut;
- c.options.plugins = c.options.plugins || {};
- c.options.plugins.legend = Object.assign(c.options.plugins.legend || {}, {labels:{color:mut, font:{family:"Cairo"}}});
- if (c.options.scales) Object.keys(c.options.scales).forEach(a => { c.options.scales[a].ticks = {color:mut}; c.options.scales[a].grid = {color:line}; });
+ const mx = Math.max(0, ...sets.flatMap(d => d.data));
+ cv.onmousemove = null; cv.title = "";
+ if (!labels.length || mx <= 0){ chartMsg(ctx, w, h, emptyMsg); return; }
+ const T = chartLegend(ctx, w, sets.map(d => ({label:d.label, color:d.color}))) + 4;
+ const L = 50, R = 8, B = 58, pw = w - L - R, ph = h - T - B;
+ if (pw < 40 || ph < 40) return;
+ const max = niceMax(mx), steps = 5, n = labels.length, slot = pw / n, hits = [];
+ ctx.font = CFONT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+ for (let i = 0; i <= steps; i++){
+  const y = T + ph - ph * i / steps;
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke();
+  ctx.fillStyle = mut; ctx.fillText(fmt(max * i / steps), L - 6, y);
+ }
+ ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillStyle = mut;
+ const every = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(pw / 56)))), maxCh = Math.max(4, Math.floor(slot * every / 6.5));
+ labels.forEach((lb, i) => {
+  if (i % every) return;
+  let t = String(lb); if (/^\d{4}-\d{2}-\d{2}$/.test(t)) t = t.slice(5);
+  const lines = []; let cur = "";
+  t.split(" ").forEach(wd => { if (cur && (cur + " " + wd).length > maxCh){ lines.push(cur); cur = wd; } else cur = cur ? cur + " " + wd : wd; });
+  if (cur) lines.push(cur);
+  lines.slice(0, 3).forEach((ln, li) => { if (ln.length > maxCh) ln = ln.slice(0, maxCh - 1) + "…"; ctx.fillText(ln, L + slot * i + slot / 2, T + ph + 8 + li * 14); });
+ });
+ if (type === "bar"){
+  const k = sets.length, bw = Math.min(38, slot * 0.78 / k);
+  sets.forEach((d, j) => {
+   ctx.fillStyle = d.color;
+   d.data.forEach((v, i) => {
+    if (v <= 0) return;
+    const bh = Math.max(2, ph * v / max), x = L + slot * i + (slot - bw * k) / 2 + bw * j, y = T + ph - bh;
+    ctx.fillRect(x, y, Math.max(2, bw - 1), bh);
+    hits.push({x, y, w:bw, h:bh, t:`${labels[i]} — ${d.label}: ${fmt(v)}`});
+   });
+  });
+ } else {
+  sets.forEach(d => {
+   const pts = d.data.map((v, i) => [L + slot * i + slot / 2, T + ph - ph * v / max]);
+   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+   ctx.strokeStyle = d.color; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.stroke();
+   ctx.lineTo(pts[n - 1][0], T + ph); ctx.lineTo(pts[0][0], T + ph); ctx.closePath();
+   ctx.globalAlpha = .15; ctx.fillStyle = d.color; ctx.fill(); ctx.globalAlpha = 1;
+   pts.forEach((p, i) => { ctx.beginPath(); ctx.arc(p[0], p[1], 3.5, 0, 7); ctx.fillStyle = d.color; ctx.fill(); hits.push({x:p[0] - 8, y:p[1] - 8, w:16, h:16, t:`${labels[i]} — ${d.label}: ${fmt(d.data[i])}`}); });
+  });
+ }
+ cv.onmousemove = e => {
+  const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const q = hits.find(o => x >= o.x && x <= o.x + o.w && y >= o.y && y <= o.y + o.h);
+  cv.title = q ? q.t : "";
+ };
+}
+function drawDonut(cv, labels, data, colors, emptyMsg){
+ const s = setupCanvas(cv); if (!s) return; const {ctx, w, h} = s;
+ cv.onmousemove = null; cv.title = "";
+ const tot = data.reduce((a, b) => a + b, 0);
+ if (tot <= 0){ chartMsg(ctx, w, h, emptyMsg); return; }
+ const lg = chartLegend(ctx, w, labels.map((l, i) => ({label:`${l} (${fmt(data[i])})`, color:colors[i % colors.length]})));
+ const cx = w / 2, cy = lg + (h - lg) / 2, R = Math.min(w / 2 - 8, (h - lg) / 2 - 6), r = R * .58;
+ if (R < 20) return;
+ let a = -Math.PI / 2; const sl = [];
+ data.forEach((v, i) => {
+  const a2 = a + v / tot * Math.PI * 2;
+  ctx.beginPath(); ctx.arc(cx, cy, R, a, a2); ctx.arc(cx, cy, r, a2, a, true); ctx.closePath();
+  ctx.fillStyle = colors[i % colors.length]; ctx.fill(); ctx.strokeStyle = css("--card"); ctx.lineWidth = 2; ctx.stroke();
+  sl.push({a, a2, t:`${labels[i]}: ${fmt(v)} (${Math.round(v / tot * 100)}%)`}); a = a2;
+ });
+ ctx.textAlign = "center"; ctx.textBaseline = "middle";
+ ctx.fillStyle = css("--ink"); ctx.font = "800 18px Cairo,Tahoma,sans-serif"; ctx.fillText(fmt(tot), cx, cy - 8);
+ ctx.fillStyle = css("--mut"); ctx.font = CFONT; ctx.fillText("الإجمالي", cx, cy + 12);
+ cv.onmousemove = e => {
+  const rc = cv.getBoundingClientRect(), dx = e.clientX - rc.left - cx, dy = e.clientY - rc.top - cy, d = Math.hypot(dx, dy);
+  let ang = Math.atan2(dy, dx); if (ang < -Math.PI / 2) ang += Math.PI * 2;
+  const q = d >= r && d <= R ? sl.find(o => ang >= o.a && ang <= o.a2) : null;
+  cv.title = q ? q.t : "";
+ };
 }
 function updateCharts(){
- if (!mainChart) return;
- const mode = $("chartViewMode").value, range = +$("chartRange").value, H = S.history || {};
+ const mode = $("chartViewMode").value, range = +$("chartRange").value;
+ const H = JSON.parse(JSON.stringify(S.history || {}));
+ /* بيانات اليوم الحالية تظهر فوراً في الرسم حتى قبل الحفظ في الأرشيف */
+ const live = {}; let liveSum = 0;
+ Object.values(S.prod).forEach(r => { live[r.machine] = num(r.daily); liveSum += num(r.daily); });
+ if (liveSum > 0) H[dayKey()] = Object.assign(H[dayKey()] || {}, live);
  let dates = Object.keys(H).sort(); if (range > 0) dates = dates.slice(-range);
- const wantType = mode === "total" ? "line" : "bar";
- if (mainChart.config.type !== wantType){ mainChart.destroy(); mainChart = mkChart("productionChart", wantType); }
  const names = Object.values(S.prod).map(p => p.machine);
- let labels, sets;
+ const sumDay = d => Object.values(H[d]).reduce((s, v) => s + num(v), 0);
+ let labels, sets, type = "bar";
  if (mode === "daily"){
   labels = dates;
-  sets = names.map((n,i) => ({label:n, data:dates.map(d => num((H[d]||{})[n])), backgroundColor:PCOL[i % PCOL.length]}));
+  sets = names.map((n, i) => ({label:n, color:PCOL[i % PCOL.length], data:dates.map(d => num((H[d] || {})[n]))}));
  } else if (mode === "total"){
-  labels = dates;
-  sets = [{label:"إجمالي إنتاج الخط", data:dates.map(d => Object.values(H[d]).reduce((s,v) => s + num(v), 0)), borderColor:"#2563eb", backgroundColor:"rgba(37,99,235,.18)", fill:true, tension:.3}];
+  type = "line"; labels = dates;
+  sets = [{label:"إجمالي إنتاج الخط", color:"#2563eb", data:dates.map(sumDay)}];
  } else {
-  const mo = {}; Object.keys(H).sort().forEach(d => { const m = d.slice(0,7); mo[m] = (mo[m] || 0) + Object.values(H[d]).reduce((s,v) => s + num(v), 0); });
-  labels = Object.keys(mo); sets = [{label:"إجمالي الإنتاج الشهري", data:labels.map(m => mo[m]), backgroundColor:"#1F4E79"}];
+  const mo = {}; Object.keys(H).sort().forEach(d => { const m = d.slice(0, 7); mo[m] = (mo[m] || 0) + sumDay(d); });
+  labels = Object.keys(mo);
+  sets = [{label:"إجمالي الإنتاج الشهري", color:"#1F4E79", data:labels.map(m => mo[m])}];
  }
- mainChart.options.scales = {y:{beginAtZero:true}};
- mainChart.data.labels = labels; mainChart.data.datasets = sets;
- themeChart(mainChart); mainChart.update();
- $("emptyMain").style.display = labels.length ? "none" : "flex";
+ drawAxisChart($("productionChart"), type, labels, sets, "لا توجد بيانات إنتاج بعد");
+ $("emptyMain").style.display = "none";
 
- const dm = {}; Object.values(S.prod).forEach(r => { const v = num(r.daily); if (v > 0) dm[r.denom || "غير محدد"] = (dm[r.denom || "غير محدد"] || 0) + v; });
- denomChart.data.labels = Object.keys(dm);
- denomChart.data.datasets = [{data:Object.values(dm), backgroundColor:PCOL, borderColor:css("--card")}];
- themeChart(denomChart); denomChart.update();
+ const dm = {}; Object.values(S.prod).forEach(r => { const v = num(r.daily); if (v > 0){ const k = r.denom || "غير محدد"; dm[k] = (dm[k] || 0) + v; } });
+ drawDonut($("denomChart"), Object.keys(dm), Object.values(dm), PCOL, "لا يوجد إنتاج مسجّل اليوم");
 
  const per = [["t12","12 PM"],["t3","3 PM"],["t5","5 PM"],["t8","8 PM"]];
- periodChart.data.labels = names;
- periodChart.data.datasets = per.map(([f,l],i) => ({label:l, data:Object.values(S.prod).map(r => num(r[f])), backgroundColor:PCOL[i]}));
- themeChart(periodChart); periodChart.update();
+ drawAxisChart($("periodChart"), "bar", names,
+  per.map(([f, l], i) => ({label:l, color:PCOL[i], data:Object.values(S.prod).map(r => num(r[f]))})),
+  "لم تُسجَّل أرقام الفترات بعد");
 }
+let rzT = null;
+window.addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(updateCharts, 150); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => updateCharts());
 
 /* ---------- الحفظ والمزامنة ---------- */
 function merge(t, s){ for (const k in s){ if (s[k] && typeof s[k]==="object") merge(t[k] = t[k] || {}, s[k]); else t[k] = s[k]; } return t; }
