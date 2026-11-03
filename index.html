@@ -76,6 +76,17 @@ input.late{border-color:var(--bad);background:rgba(185,28,28,.1)}
 .log div{display:flex;gap:10px;padding:6px 8px;border-bottom:1px dashed var(--line)}
 .log small{color:var(--mut);white-space:nowrap}
 .empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--mut);font-size:14px;pointer-events:none}
+.tour-hl{outline:3px solid #f59e0b!important;outline-offset:4px;border-radius:10px;box-shadow:0 0 0 6px rgba(245,158,11,.25),0 0 28px rgba(245,158,11,.55);scroll-margin-top:96px;scroll-margin-bottom:200px;animation:tpulse 1.4s ease-in-out infinite}
+@keyframes tpulse{50%{box-shadow:0 0 0 12px rgba(245,158,11,.12),0 0 38px rgba(245,158,11,.7)}}
+#tour{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:120;display:none;justify-content:center;pointer-events:none}
+#tour.open{display:flex}
+.tbox{pointer-events:auto;background:var(--card);color:var(--ink);border:2px solid #f59e0b;border-radius:16px;max-width:680px;width:100%;padding:14px 16px;box-shadow:0 10px 40px rgba(0,0,0,.45);display:grid;gap:10px}
+.tbox .tt{font-size:15px;font-weight:600;line-height:1.8;min-height:54px}
+.tbox .tn{font-size:11px;color:var(--mut);display:flex;justify-content:space-between;gap:8px}
+.tpg{height:4px;background:var(--soft);border-radius:9px;overflow:hidden}.tpg i{display:block;height:100%;width:0;background:#f59e0b;transition:width .4s}
+.tctl{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.tctl .btn{min-width:44px}
+@media print{#tour{display:none!important}}
 footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-size:12px;margin-top:10px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal.open{display:flex}
@@ -100,6 +111,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <div class="tools">
   <div class="dt"><small>تاريخ اليوم</small><b id="today">—</b></div>
   <span id="sync" class="pill warn">⏳ جاري الاتصال…</span>
+  <button class="btn amber" onclick="tourOpen()">🎬 شرح الاستخدام</button>
   <button class="btn gray" onclick="toggleTheme()" title="الوضع الليلي/النهاري">🌓</button>
   <button class="btn" onclick="openQR()">📱 باركود اللوحة</button>
   <button class="btn gray" id="authBtn" onclick="authClick()">🔒 دخول للتعديل</button>
@@ -213,6 +225,20 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <input id="qrUrl" dir="ltr" aria-label="رابط اللوحة">
  <p>الصق هنا رابط المشاركة الذي نسخته من زر المشاركة إن اختلف عن الرابط الظاهر، ثم اضغط «تحديث الباركود».</p>
  <div class="acts"><button class="btn gray" onclick="closeQR()">إغلاق</button><button class="btn" onclick="drawQR()">تحديث الباركود</button><button class="btn" onclick="printQR()">طباعة</button></div>
+</div></div>
+
+<div id="tour" role="dialog" aria-label="شرح استخدام اللوحة"><div class="tbox">
+ <div class="tpg"><i id="tour-pg"></i></div>
+ <div class="tn"><span>🎬 شرح استخدام اللوحة</span><span id="tour-n">1 / 1</span></div>
+ <div class="tt" id="tour-txt"></div>
+ <div class="tn" id="tour-note" style="color:var(--warn)"></div>
+ <div class="tctl">
+  <button class="btn gray" onclick="tourStep(-1)">السابق</button>
+  <button class="btn" id="tour-play" onclick="tourToggle()" title="تشغيل/إيقاف">⏸</button>
+  <button class="btn gray" onclick="tourStep(1)">التالي</button>
+  <button class="btn green" id="tour-vo" onclick="tourVoice()">🔊 الصوت: شغال</button>
+  <button class="btn red" onclick="tourClose()">✖ إغلاق</button>
+ </div>
 </div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -591,6 +617,76 @@ function drawQR(){
 }
 function printQR(){ document.body.classList.add("qrp"); window.print(); }
 window.addEventListener("afterprint", () => document.body.classList.remove("qrp"));
+
+/* ---------- جولة الشرح بالعامية المصرية ---------- */
+const TOUR = [
+ {s:"header", t:"أهلاً بيك في لوحة متابعة خط الإنتاج تلاتة! هنمشي سوا في شرح سريع لكل حاجة في اللوحة. وتقدر توقّف الشرح أو تعدّي أي خطوة في أي وقت."},
+ {s:"#sync", t:"أول حاجة: الشارة دي بتقولك حالة الاتصال. لو مكتوب عرض فقط يبقى انت بتتفرج، ولو مكتوب متصل ومحدَّث لحظياً يبقى كل حاجة بتتحفظ أول بأول."},
+ {s:"#authBtn", t:"المشاهدة متاحة لأي حد. لكن لو عايز تعدّل في الأرقام، دوس على دخول للتعديل واكتب كلمة السر. وبعد ما تخلّص دوس خروج."},
+ {s:".stats", t:"هنا الأرقام المهمة قدامك على طول: إجمالي الحضور، وعدد الماكينات الشغالة، وإنتاج النهارده مقارنةً بآخر يوم، ونسبة تحقيق المستهدف، وحالة الصيانة. كلها بتتحسب لوحدها."},
+ {s:"#alerts", c:".card", t:"دي التنبيهات الذكية. اللوحة بتنبّهك لو ماكينة وقفت، أو صيانة اتأخرت، أو ماكينة متأخرة عن المستهدف. لو كله تمام هتلاقي علامة صح خضرا."},
+ {s:".tb", t:"الشريط ده فيه أدوات الجدول. تقدر تدوّر على ماكينة أو أمر إنتاج، وتصدّر كل الأرقام على إكسيل، وتطبع تقرير اليوم. ولو داخل بكلمة السر هتلاقي كمان زرار حفظ في الأرشيف، وزرار إغلاق اليوم."},
+ {s:"#prod tr", t:"ودي سطر ماكينة في جدول الإنتاج. كل خانة تقدر تكتب فيها مباشرة: رقم أمر الإنتاج، والفئة، والإنتاج اليومي، وأرقام كل فترة، من اتناشر الضهر لحد تمانية بالليل. واللي تكتبه بيظهر عند الكل في نفس اللحظة."},
+ {s:"#prod select", t:"من هنا بتختار حالة الماكينة: نشطة، أو قيد الإعداد، أو متوقفة، أو في الصيانة. وبعدها حدد المستهدف اليومي، وشريط النسبة هيتلوّن لوحده من الأحمر للأخضر."},
+ {s:"#productionChart", c:".card", t:"هنا الرسوم البيانية. تقدر تشوف الإنتاج يوم بيوم لكل ماكينة، أو اتجاه الخط كله، أو شهر بشهر. وتغيّر المدة: آخر أسبوع أو أسبوعين أو شهر. والرسم بيتبني من الأرشيف، فخلّي بالك تقفل اليوم كل يوم."},
+ {s:"#denomChart", c:".grid2", t:"والرسمين دول بيوروك توزيع إنتاج النهارده على الفئات، وإنتاج كل ماكينة في كل فترة زمنية."},
+ {s:"#att", c:".card", t:"في سجل الحضور اكتب عدد الناس في كل وردية، والغياب، والإجازات. والإجمالي بيتحسب لوحده، ومش محتاج تجمع بإيدك."},
+ {s:"#maint", c:".card", t:"وده جدول الصيانة الأسبوعية والشهرية. اكتب الميعاد بالشكل يوم شرطة شهر، ودوس على الزرار لما الصيانة تتم. أي ميعاد فات ومتعملش هيتلوّن بالأحمر، وهيظهر في التنبيهات."},
+ {s:"textarea[data-g=hand]", c:".card", t:"هنا ملاحظات تسليم الوردية. اكتب اللي الوردية الجاية محتاجة تعرفه، وهيظهر عند الكل فوراً. ومن جنبها سجل بيوضّح مين عدّل إيه ومتى."},
+ {s:".tools", t:"وفي الآخر: زرار الباركود بيطلّعلك كود تمسحه بالموبايل وتفتح اللوحة، وزرار القمر بيبدّل بين الوضع الليلي والنهاري."},
+ {s:"header", t:"كده انت عرفت اللوحة كلها. لو احتجت الشرح تاني دوس على شرح الاستخدام في أي وقت. بالتوفيق!"}
+];
+let tIdx = 0, tPlay = true, tVoice = true, tTok = 0, tTimer = null, tHl = null;
+function tourVoicePick(){ try { const v = speechSynthesis.getVoices(); return v.find(x => /^ar[-_]EG/i.test(x.lang)) || v.find(x => /^ar/i.test(x.lang)) || null; } catch(e){ return null; } }
+function tourOpen(){ tIdx = 0; tPlay = true; $("tour").classList.add("open"); tourShow(); }
+function tourClose(){
+ tTok++; clearTimeout(tTimer); try { speechSynthesis.cancel(); } catch(e){}
+ if (tHl) tHl.classList.remove("tour-hl"); tHl = null;
+ $("tour").classList.remove("open"); window.scrollTo({top:0, behavior:"smooth"});
+}
+function tourStep(d){ const n = tIdx + d; if (n < 0 || n >= TOUR.length) return; tIdx = n; tourShow(); }
+function tourToggle(){
+ if ($("tour-play").textContent === "↻"){ tIdx = 0; tPlay = true; } else tPlay = !tPlay;
+ tourShow();
+}
+function tourVoice(){ tVoice = !tVoice; $("tour-vo").textContent = tVoice ? "🔊 الصوت: شغال" : "🔇 الصوت: مقفول"; $("tour-vo").className = "btn " + (tVoice ? "green" : "gray"); tourShow(); }
+function tourShow(){
+ const st = TOUR[tIdx], tok = ++tTok;
+ clearTimeout(tTimer); try { speechSynthesis.cancel(); } catch(e){}
+ if (tHl) tHl.classList.remove("tour-hl"); tHl = null;
+ let el = document.querySelector(st.s);
+ if (el && st.c) el = el.closest(st.c) || el;
+ if (el){
+  tHl = el; el.classList.add("tour-hl");
+  const big = el.getBoundingClientRect().height > innerHeight * .55;
+  el.scrollIntoView({behavior:"smooth", block: big ? "start" : "center"});
+ }
+ $("tour-txt").textContent = st.t;
+ $("tour-n").textContent = (tIdx + 1) + " / " + TOUR.length;
+ $("tour-pg").style.width = ((tIdx + 1) / TOUR.length * 100) + "%";
+ $("tour-play").textContent = tPlay ? "⏸" : "▶";
+ $("tour-note").textContent = "";
+ const go = () => {
+  if (tok !== tTok || !tPlay) return;
+  if (tIdx < TOUR.length - 1){ tIdx++; tourShow(); }
+  else { tPlay = false; $("tour-play").textContent = "↻"; }
+ };
+ const base = Math.max(4500, st.t.length * 85);
+ if (!tPlay) return;
+ const v = tVoice && "speechSynthesis" in window ? tourVoicePick() : null;
+ if (v){
+  const u = new SpeechSynthesisUtterance(st.t);
+  u.voice = v; u.lang = v.lang; u.rate = .95;
+  u.onend = () => { clearTimeout(tTimer); if (tok === tTok && tPlay) tTimer = setTimeout(go, 700); };
+  speechSynthesis.speak(u);
+  tTimer = setTimeout(go, base * 2.4 + 3000);
+ } else {
+  if (tVoice) $("tour-note").textContent = "مفيش صوت عربي متاح على جهازك، فالشرح بيتعرض كتابةً.";
+  tTimer = setTimeout(go, base);
+ }
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("tour").classList.contains("open")) tourClose(); });
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
 
 function showDate(){ $("today").textContent = new Date().toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); }
 showDate(); setInterval(showDate, 60000);
