@@ -25,7 +25,7 @@ h1{font-size:17px;margin:0}.sub{font-size:12px;color:#cbd5e1;margin:2px 0 0}
 .pill.busy{background:#1d4ed8}.pill.warn{background:#b45309}
 .dt{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:4px 14px;text-align:center;line-height:1.3}.dt small{display:block;font-size:10px;color:#cbd5e1}.dt b{font-size:13px}
 .btn{border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;color:#fff;background:#2563eb}
-.btn:hover{filter:brightness(1.1)}.btn.gray{background:#4b5563}.btn.green{background:#15803d}
+.btn:hover{filter:brightness(1.1)}.btn.gray{background:#4b5563}.btn.green{background:#15803d}.btn.red{background:#b91c1c}.btn.amber{background:#b45309}
 main{flex:1;max-width:1280px;width:100%;margin:0 auto;padding:20px 16px;display:grid;gap:20px}
 .stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
 .stat{background:var(--card);border:1px solid var(--line);border-right:4px solid var(--c);border-radius:12px;padding:14px 16px}
@@ -43,22 +43,39 @@ th{background:var(--soft);font-size:12px;padding:10px;white-space:nowrap}
 td{padding:8px 10px;border-top:1px solid var(--line)}
 tbody tr:hover{background:var(--hov)}
 .mn{font-weight:800;color:var(--acc);white-space:nowrap}
-input{font:inherit;font-size:13px;text-align:center;color:var(--ink);background:var(--inbg);border:1px solid var(--inl);border-radius:8px;padding:6px 8px;width:100%;min-width:60px}
-input:focus{outline:2px solid rgba(37,99,235,.35);border-color:var(--acc)}
-input[readonly]{cursor:default}
-input.calc{background:var(--soft);font-weight:800;color:var(--acc)}
+input,select,textarea{font:inherit;font-size:13px;text-align:center;color:var(--ink);background:var(--inbg);border:1px solid var(--inl);border-radius:8px;padding:6px 8px;width:100%;min-width:60px}
+select{text-align:right;cursor:pointer;min-width:110px;font-weight:700}
+textarea{text-align:right;min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(37,99,235,.35);border-color:var(--acc)}
+input[readonly],textarea[readonly]{cursor:default}
+select:disabled{opacity:.8;cursor:default}
 td input.w{min-width:130px;font-weight:700}td input.n{font-weight:800}td input.notes{text-align:right;font-size:12px;min-width:140px}
-td input.calc{min-width:90px}
+input.late{border-color:var(--bad);background:rgba(185,28,28,.1)}
+.s-active{color:var(--ok)}.s-stopped{color:var(--bad)}.s-setup,.s-maint{color:var(--warn)}
+.bar{height:8px;background:var(--soft);border-radius:9px;overflow:hidden;min-width:90px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .4s}
+.pt{font-size:11px;color:var(--mut);display:block;text-align:center;margin-top:3px}
 .grid2{display:grid;gap:20px;grid-template-columns:1fr}
-@media(min-width:1024px){.grid2{grid-template-columns:1fr 2fr}}
+@media(min-width:1024px){.grid2{grid-template-columns:1fr 2fr}.grid2.eq{grid-template-columns:1fr 1fr}}
 .att{padding:14px;display:grid;gap:8px}
 .att div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:var(--soft);border-radius:9px;font-size:14px}
 .att div.tot{background:var(--hov);border:1px solid var(--inl);font-weight:800;color:var(--acc)}
 .att input{width:92px;font-weight:800}
 .st{border:1px solid var(--inl);border-radius:9px;padding:6px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--soft);color:var(--mut)}
 .st.on{background:rgba(22,163,74,.15);border-color:#16a34a;color:var(--ok)}
-.chart-container{padding:16px;position:relative;height:320px;}
-.note{padding:8px 18px;font-size:12px;color:var(--mut);border-top:1px solid var(--line)}
+.st:disabled{cursor:default;opacity:.7}
+.chart-container{padding:16px;position:relative;height:320px}
+.chart-container.sm{height:280px}
+.tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.tb input[type=search]{max-width:240px;text-align:right}
+.tb .sp{flex:1}
+.al{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);border-right:4px solid var(--mut);background:var(--soft)}
+.al.bad{border-right-color:var(--bad);color:var(--bad)}.al.warn{border-right-color:var(--warn);color:var(--warn)}.al.ok{border-right-color:var(--ok);color:var(--ok)}
+.alw{padding:12px;display:grid;gap:8px}
+.log{padding:10px 14px;display:grid;gap:6px;max-height:260px;overflow:auto;font-size:13px}
+.log div{display:flex;gap:10px;padding:6px 8px;border-bottom:1px dashed var(--line)}
+.log small{color:var(--mut);white-space:nowrap}
+.empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--mut);font-size:14px;pointer-events:none}
 footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-size:12px;margin-top:10px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal.open{display:flex}
@@ -66,52 +83,12 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 .box h3{margin:0}.box p{margin:0;font-size:12px;color:var(--mut)}
 #qrcode{display:inline-block;padding:12px;background:#fff;border-radius:12px;border:1px solid var(--line)}
 .acts{display:flex;gap:8px;justify-content:flex-end}
-
-/* ---------- التقرير المطبوع ---------- */
-#report{display:none}
-.rp{font-family:Cairo,Tahoma,"Segoe UI",sans-serif;color:#111827;background:#fff;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.rp *{box-sizing:border-box}
-.rp-head{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:3px solid #1F4E79;padding-bottom:10px;margin-bottom:12px}
-.rp-head .org{font-size:11px;color:#4b5563;margin:0}
-.rp-head h1{font-size:20px;margin:2px 0;color:#0d233a}
-.rp-head .meta{text-align:left;font-size:11px;color:#374151;line-height:1.7;background:#eef4fb;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px}
-.rp-head .logo{font-size:30px;background:#1F4E79;border-radius:10px;padding:6px 12px;color:#fff}
-.rp-head .lft{display:flex;gap:12px;align-items:center}
-.rp-warn{background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:8px;padding:6px 12px;font-size:11px;margin-bottom:10px;font-weight:700}
-.rp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.rp-kpi{border:1px solid #cbd5e1;border-right:5px solid var(--k);border-radius:8px;padding:7px 10px;background:#f9fafb}
-.rp-kpi small{display:block;font-size:10px;color:#6b7280}
-.rp-kpi b{font-size:18px;color:#111827}
-.rp-kpi em{display:block;font-style:normal;font-size:10px;color:#6b7280}
-.rp h2{font-size:13px;background:#eef4fb;border-right:5px solid #1F4E79;padding:5px 10px;margin:12px 0 6px;color:#0d233a;break-after:avoid}
-.rp table{width:100%;border-collapse:collapse;font-size:11px;direction:rtl}
-.rp th{background:#1F4E79;color:#fff;padding:6px 5px;border:1px solid #1F4E79;text-align:center;font-size:10.5px;white-space:normal}
-.rp td{border:1px solid #cbd5e1;padding:5px 6px;text-align:center;border-top:1px solid #cbd5e1}
-.rp tbody tr:nth-child(even){background:#f3f6fa}
-.rp tr{break-inside:avoid}
-.rp td.m{text-align:right;font-weight:800;color:#1F4E79;white-space:nowrap}
-.rp td.nt{text-align:right}
-.rp tfoot td{background:#dbe7f3;font-weight:800;color:#0d233a}
-.rp .bd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:10px;font-weight:700}
-.rp .bd.ok{background:#dcfce7;color:#166534;border:1px solid #16a34a}
-.rp .bd.wt{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
-.rp .bd.st{background:#fee2e2;color:#991b1b;border:1px solid #ef4444}
-.rp-two{display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start}
-.rp-chart{text-align:center;break-inside:avoid}
-.rp-chart img{max-width:100%;max-height:230px;border:1px solid #cbd5e1;border-radius:8px;padding:6px}
-.rp-sign{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:26px;break-inside:avoid}
-.rp-sign div{text-align:center;font-size:11px;color:#374151;border-top:1.5px solid #374151;padding-top:6px}
-.rp-foot{margin-top:12px;text-align:center;font-size:10px;color:#6b7280;border-top:1px solid #cbd5e1;padding-top:6px}
-
 @media print{
- @page{size:A4 landscape;margin:10mm}
- html,body{background:#fff!important;min-height:0!important}
- body::before{display:none!important}
- body.pr-qr>*:not(#qrModal){display:none!important}
- body.pr-qr .modal{position:static;background:none;display:flex}
- body.pr-qr .acts{display:none}
- body.pr-rep>*:not(#report){display:none!important}
- body.pr-rep #report{display:block}
+ header,.tb,.acts,.noprint,footer,.modal:not(.open){display:none!important}
+ body{background:#fff;color:#000}
+ body.qrp>*:not(#qrModal){display:none!important}
+ body.qrp .modal{position:static;background:none;display:flex}
+ .card,.stat{break-inside:avoid}
 }
 </style>
 </head>
@@ -123,9 +100,9 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <div class="tools">
   <div class="dt"><small>تاريخ اليوم</small><b id="today">—</b></div>
   <span id="sync" class="pill warn">⏳ جاري الاتصال…</span>
-  <button class="btn green" onclick="printReport()">🖨️ طباعة تقرير</button>
+  <button class="btn gray" onclick="toggleTheme()" title="الوضع الليلي/النهاري">🌓</button>
   <button class="btn" onclick="openQR()">📱 باركود اللوحة</button>
-  <button class="btn gray" id="authBtn" onclick="authClick()">🔒 دخول للحفظ</button>
+  <button class="btn gray" id="authBtn" onclick="authClick()">🔒 دخول للتعديل</button>
  </div>
 </div></header>
 
@@ -136,33 +113,63 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
   <div class="stat" style="--c:#16a34a"><div class="row"><div><p>الماكينات النشطة / الإجمالي</p><h3 id="st-act">0 / 0</h3></div><span class="ic">✅</span></div>
    <div class="ft" id="st-actmsg">—</div></div>
   <div class="stat" style="--c:#f59e0b"><div class="row"><div><p>إجمالي الإنتاج اليومي للماكينات</p><h3 id="st-prod">0</h3></div><span class="ic">💵</span></div>
-   <div class="ft" id="st-upd">آخر تحديث: —</div></div>
+   <div class="ft"><span id="st-upd">آخر تحديث: —</span><b id="st-delta"></b></div></div>
+  <div class="stat" style="--c:#0ea5e9"><div class="row"><div><p>تحقيق المستهدف اليومي</p><h3 id="st-tgt">—</h3></div><span class="ic">🎯</span></div>
+   <div class="ft" id="st-tgtmsg">حدد المستهدف لكل ماكينة</div></div>
   <div class="stat" style="--c:#9333ea"><div class="row"><div><p>حالة الصيانة الدورية</p><h3 id="st-maint">—</h3></div><span class="ic">🛠️</span></div>
    <div class="ft">تتحدث حسب حالة فحص الماكينات</div></div>
  </div>
 
  <section class="card">
-  <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2><span>✏️ التعديل متاح للجميع — الحفظ والمزامنة بعد إدخال كلمة السر</span></div>
+  <div class="ch" style="background:var(--bad)"><h2>🚨 التنبيهات الذكية</h2><span id="al-n">0</span></div>
+  <div class="alw" id="alerts"></div>
+ </section>
+
+ <section class="card">
+  <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span></div>
+  <div class="tb">
+   <input type="search" id="q" placeholder="🔍 بحث (ماكينة / أمر إنتاج / فئة)" aria-label="بحث">
+   <span class="sp"></span>
+   <button class="btn green" onclick="exportCSV()">⬇ تصدير Excel</button>
+   <button class="btn" onclick="printReport()">🖨 تقرير اليوم</button>
+   <button class="btn amber edit-only" onclick="archive(false)">📌 حفظ في الأرشيف</button>
+   <button class="btn red edit-only" onclick="archive(true)">🌅 إغلاق اليوم</button>
+  </div>
   <div class="scroll"><table>
-   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي (مجموع الفترات)</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج للأمر (كل الأيام)</th><th>ملاحظات / الحالة</th></tr></thead>
+   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الحالة</th><th>المستهدف</th><th>الإنتاج اليومي</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج</th><th>نسبة التحقيق</th><th>ملاحظات</th></tr></thead>
    <tbody id="prod"></tbody></table></div>
-  <div class="note">الإنتاج اليومي = مجموع خانات الفترات (12 / 3 / 5 / 8). إجمالي الإنتاج للأمر = مجموع الإنتاج اليومي لهذه الماكينة على نفس رقم الأمر في كل الأيام المسجلة. يمكن لأي شخص التعديل، لكن التعديلات لا تُحفظ في السحابة إلا بعد إدخال كلمة السر (وعند إدخالها تُحفظ كل التعديلات السابقة تلقائياً). عند بداية يوم جديد تُرحَّل أرقام اليوم السابق تلقائياً للأرشيف وتُصفَّر خانات الفترات (يتم ذلك عند أول دخول بكلمة السر في اليوم الجديد).</div>
  </section>
 
  <section class="card">
   <div class="ch" style="background:var(--dark)">
-   <h3>📊 الرسوم البيانية للإنتاج (يومي وشهري)</h3>
-   <div style="display:flex; gap:10px; align-items:center;">
-    <select id="chartViewMode" onchange="updateCharts()" style="padding:4px 8px; border-radius:6px; font-size:12px;">
-     <option value="daily">الإنتاج اليومي (حسب الأيام)</option>
-     <option value="monthly">الإنتاج الشهري (حسب الشهور)</option>
+   <h3>📊 الرسوم البيانية للإنتاج</h3>
+   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <select id="chartViewMode" onchange="updateCharts()" style="min-width:150px">
+     <option value="daily">يومي حسب الماكينة</option>
+     <option value="total">إجمالي الخط (اتجاه)</option>
+     <option value="monthly">شهري</option>
+    </select>
+    <select id="chartRange" onchange="updateCharts()" style="min-width:110px">
+     <option value="7">آخر 7 أيام</option>
+     <option value="14">آخر 14 يوم</option>
+     <option value="30" selected>آخر 30 يوم</option>
+     <option value="0">الكل</option>
     </select>
    </div>
   </div>
-  <div class="chart-container">
-   <canvas id="productionChart"></canvas>
-  </div>
+  <div class="chart-container"><canvas id="productionChart"></canvas><div class="empty" id="emptyMain">لا توجد بيانات في الأرشيف بعد — اضغط «حفظ في الأرشيف» أو عدّل الإنتاج اليومي</div></div>
  </section>
+
+ <div class="grid2 eq">
+  <section class="card">
+   <div class="ch" style="background:var(--dark)"><h3>💵 توزيع إنتاج اليوم حسب الفئة</h3></div>
+   <div class="chart-container sm"><canvas id="denomChart"></canvas></div>
+  </section>
+  <section class="card">
+   <div class="ch" style="background:var(--dark)"><h3>⏱️ إنتاج اليوم حسب الفترة الزمنية</h3></div>
+   <div class="chart-container sm"><canvas id="periodChart"></canvas></div>
+  </section>
+ </div>
 
  <div class="grid2">
   <section class="card">
@@ -170,10 +177,21 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <div class="att" id="att"></div>
   </section>
   <section class="card">
-   <div class="ch" style="background:var(--green)"><h3>🔧 جدول صيانة ماكينات خط 3 (أسبوعية الشهرية)</h3><span>فحص فني دقيق</span></div>
+   <div class="ch" style="background:var(--green)"><h3>🔧 جدول صيانة ماكينات خط 3 (أسبوعية الشهرية)</h3><span>التواريخ المتأخرة تظهر باللون الأحمر (يوم-شهر)</span></div>
    <div class="scroll"><table>
     <thead><tr><th>اسم الماكينة</th><th>الصيانة الأسبوعية</th><th>حالة الأسبوعية</th><th>الصيانة الشهرية</th><th>حالة الشهرية</th></tr></thead>
     <tbody id="maint"></tbody></table></div>
+  </section>
+ </div>
+
+ <div class="grid2 eq">
+  <section class="card">
+   <div class="ch" style="background:var(--blue)"><h3>📝 ملاحظات تسليم الوردية</h3><span>يراها الجميع فوراً</span></div>
+   <div style="padding:14px"><textarea data-g="hand" data-f="text" placeholder="اكتب هنا ملاحظات الوردية للوردية التالية…"></textarea></div>
+  </section>
+  <section class="card">
+   <div class="ch" style="background:var(--dark)"><h3>🕒 سجل التعديلات الأخيرة</h3><span>من عدّل ماذا ومتى</span></div>
+   <div class="log" id="log"></div>
   </section>
  </div>
 </main>
@@ -181,8 +199,8 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 <footer>البنك المركزي المصري - الإدارة العامة لطباعة أوراق النقد | نظام إدارة ومتابعة خط الإنتاج 3 &copy; 2026</footer>
 
 <div id="pwModal" class="modal"><div class="box">
- <h3>🔐 إدخال كلمة السر للحفظ</h3>
- <p>التعديل متاح للجميع، لكن الحفظ في السحابة يتطلب كلمة السر. بعد الدخول تُحفظ كل تعديلاتك السابقة والقادمة تلقائياً.</p>
+ <h3>🔐 دخول للتعديل</h3>
+ <p>المشاهدة متاحة للجميع. أدخل كلمة السر للسماح بالتعديل.</p>
  <input id="pw" type="password" autocomplete="current-password" aria-label="كلمة السر">
  <p id="pwErr" style="color:var(--bad)"></p>
  <div class="acts"><button class="btn gray" onclick="closePw()">إلغاء</button><button class="btn" onclick="doLogin()">دخول</button></div>
@@ -197,24 +215,16 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <div class="acts"><button class="btn gray" onclick="closeQR()">إغلاق</button><button class="btn" onclick="drawQR()">تحديث الباركود</button><button class="btn" onclick="printQR()">طباعة</button></div>
 </div></div>
 
-<div id="report"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
 /* ---------- البيانات الافتراضية ---------- */
 const DEF = {
  prod: {
-  p0:{machine:"Super Simultan 3",order:"6005/9",denom:"10 جنيه مصري",t12:"80",t3:"-",t5:"-",t8:"-",notes:"نشط ومنتظم"},
-  p1:{machine:"Super Orlof Intaglio 5",order:"6005/9",denom:"10 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"جاري التجهيز"},
-  p2:{machine:"Super Orlof Intaglio 6",order:"6025/5",denom:"200 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"نشط"},
-  p3:{machine:"Opti Nota 1",order:"6005/9",denom:"10 جنيه مصري",t12:"-",t3:"-",t5:"-",t8:"-",notes:"توقف مؤقت"},
-  p4:{machine:"Check Numero Protecta 3",order:"6021/9",denom:"50 جنيه مصري",t12:"80",t3:"-",t5:"-",t8:"-",notes:"تشغيل مستمر"}},
- log: {
-  carry:{
-   p0:{order:"6005/9",daily:265},
-   p2:{order:"6025/5",daily:870},
-   p4:{order:"6021/9",daily:806282}}},
- dayDate: "",
+  p0:{machine:"Super Simultan 3",order:"6005/9",denom:"10 جنيه مصري",target:"",daily:"80",t12:"-",t3:"-",t5:"-",t8:"-",total:"265",notes:"نشط ومنتظم"},
+  p1:{machine:"Super Orlof Intaglio 5",order:"6005/9",denom:"10 جنيه مصري",target:"",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"إعداد",notes:"جاري التجهيز"},
+  p2:{machine:"Super Orlof Intaglio 6",order:"6025/5",denom:"200 جنيه مصري",target:"",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"870",notes:"نشط"},
+  p3:{machine:"Opti Nota 1",order:"6005/9",denom:"10 جنيه مصري",target:"",daily:"-",t12:"-",t3:"-",t5:"-",t8:"-",total:"توقف",notes:"توقف مؤقت"},
+  p4:{machine:"Check Numero Protecta 3",order:"6021/9",denom:"50 جنيه مصري",target:"",daily:"80",t12:"-",t3:"-",t5:"-",t8:"-",total:"806282",notes:"تشغيل مستمر"}},
  maint: {
   m0:{machine:"Super Simultan 3",wDate:"12-10",wStat:true,mDate:"21-10",mStat:false},
   m1:{machine:"Super Orlof Intaglio 5",wDate:"11-10",wStat:true,mDate:"19-10",mStat:false},
@@ -222,52 +232,48 @@ const DEF = {
   m3:{machine:"Opti Nota 1",wDate:"14-10",wStat:true,mDate:"18-10",mStat:false},
   m4:{machine:"Check Numero Protecta 3",wDate:"15-10",wStat:true,mDate:"22-10",mStat:false}},
  att: {s1:"13",s2:"10",s3:"0",abs:"0",exc:"0",sup:"5"},
+ hand: {text:""},
+ history: {},
+ log: {},
  updatedAt: ""
 };
 const S = JSON.parse(JSON.stringify(DEF));
 const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-function setStatus(type, message) {
-  const el = $("sync");
-  if (!el) return;
-  el.className = "pill" + (type ? " " + type : "");
-  el.textContent = message;
-}
-const COLS = [["order","w"],["denom","w"],["daily","n calc"],["t12",""],["t3",""],["t5",""],["t8",""],["total","n calc"],["notes","notes"]];
+const STAT = {active:"🟢 نشطة", setup:"🟡 قيد الإعداد", stopped:"🔴 متوقفة", maint:"🔧 صيانة"};
+const FL = {order:"أمر الإنتاج",denom:"الفئة",status:"الحالة",target:"المستهدف",daily:"الإنتاج اليومي",t12:"12 PM",t3:"3 PM",t5:"5 PM",t8:"8 PM",total:"الإجمالي",notes:"ملاحظات",wDate:"موعد الصيانة الأسبوعية",mDate:"موعد الصيانة الشهرية",s1:"الوردية 1",s2:"الوردية 2",s3:"الوردية 3",abs:"الغياب",exc:"إجازات",sup:"الإشراف",text:"ملاحظات التسليم"};
+const COLS = [["order","w"],["denom","w"],["status","sel"],["target","n"],["daily","n"],["t12",""],["t3",""],["t5",""],["t8",""],["total","n"],["progress","pg"],["notes","notes"]];
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
-const CALC = ["daily","total"];
+const PCOL = ["#2563eb","#16a34a","#f59e0b","#9333ea","#db2777","#0ea5e9","#84cc16"];
 
-let pending = {}, timer = null, writing = false, prodChart = null, loaded = false;
-const hasPending = () => Object.keys(pending).length > 0;
+let readOnly = true, pending = {}, timer = null, writing = false, mainChart = null, denomChart = null, periodChart = null;
 
+function setStatus(type, message){ const el = $("sync"); el.className = "pill" + (type ? " " + type : ""); el.textContent = message; }
 function num(v){ const n = parseFloat(String(v || "").replace(/,/g,"").trim()); return isNaN(n) ? 0 : n; }
-function fmt(n){ return n.toLocaleString("en-US"); }
-function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function todayStr(){ const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
-
-/* ---------- حسابات الإنتاج ---------- */
-function dailyOf(r){ return num(r.t12) + num(r.t3) + num(r.t5) + num(r.t8); }
-function liveDate(){ return S.dayDate || todayStr(); }
-function effLog(){
- const L = {};
- for (const d in (S.log || {})) L[d] = S.log[d];
- const ld = liveDate(); L[ld] = {};
- for (const k in S.prod){ const r = S.prod[k]; L[ld][k] = {order:r.order, daily:dailyOf(r)}; }
- return L;
+function dayKey(d = new Date()){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+function getStatus(r){
+ if (r.status && STAT[r.status]) return r.status;
+ const t = String(r.total||"").trim(), n = String(r.notes||"");
+ if (t === "توقف" || n.includes("توقف")) return "stopped";
+ if (t === "إعداد" || n.includes("تجهيز")) return "setup";
+ return "active";
 }
-function orderTotal(k){
- const o = String(S.prod[k].order || "").trim();
- if (!o) return 0;
- let s = 0; const L = effLog();
- for (const d in L){ const e = L[d] && L[d][k]; if (e && String(e.order || "").trim() === o) s += num(e.daily); }
- return s;
-}
-function isActive(r){ const n = String(r.notes||""); return !n.includes("توقف") && !n.includes("تجهيز") && !n.includes("إعداد"); }
+function ref(g,k){ return g === "att" ? S.att : g === "hand" ? S.hand : S[g][k]; }
+function mk(g,k,f,v){ return k ? {[g]:{[k]:{[f]:v}}} : {[g]:{[f]:v}}; }
+function parseDM(s){ const m = /^(\d{1,2})[-\/.](\d{1,2})$/.exec(String(s||"").trim()); return m ? new Date(new Date().getFullYear(), +m[2]-1, +m[1]) : null; }
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
+/* ---------- بناء الواجهة ---------- */
 function build(){
  $("prod").innerHTML = Object.keys(S.prod).map(k =>
-  `<tr><td class="mn">⚙️ ${esc(S.prod[k].machine)}</td>` +
-  COLS.map(([f,c]) => `<td><input class="${c}" data-g="prod" data-k="${k}" data-f="${f}" autocomplete="off"></td>`).join("") + `</tr>`).join("");
+  `<tr data-row="${k}"><td class="mn">⚙️ ${esc(S.prod[k].machine)}</td>` +
+  COLS.map(([f,c]) => {
+   if (c === "sel") return `<td><select data-g="prod" data-k="${k}" data-f="status">${Object.entries(STAT).map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></td>`;
+   if (c === "pg") return `<td><div class="bar"><i id="pg-${k}"></i></div><span class="pt" id="pt-${k}">—</span></td>`;
+   const im = (c === "n" || f.startsWith("t")) ? ' inputmode="decimal"' : "";
+   return `<td><input class="${c}"${im} data-g="prod" data-k="${k}" data-f="${f}" autocomplete="off"></td>`;
+  }).join("") + `</tr>`).join("");
  $("att").innerHTML =
   `<div class="tot"><span>إجمالي الحضور (تلقائي)</span><input id="att-total" readonly></div>` +
   ATT.map(([f,l]) => `<div><span>${l}</span><input inputmode="numeric" data-g="att" data-f="${f}" autocomplete="off"></div>`).join("");
@@ -277,42 +283,71 @@ function build(){
    <td style="text-align:center"><button class="st" data-k="${k}" data-f="wStat"></button></td>
    <td><input data-g="maint" data-k="${k}" data-f="mDate"></td>
    <td style="text-align:center"><button class="st" data-k="${k}" data-f="mStat"></button></td></tr>`).join("");
- document.querySelectorAll("input[data-g]").forEach(el => el.addEventListener("input", onEdit));
+ document.querySelectorAll("[data-g]").forEach(el => { el.addEventListener("input", onEdit); el.addEventListener("change", onChange); });
  document.querySelectorAll("button.st").forEach(b => b.addEventListener("click", onToggle));
+ $("q").addEventListener("input", filterRows);
  initCharts();
 }
 
+function filterRows(){
+ const q = $("q").value.trim().toLowerCase();
+ document.querySelectorAll("#prod tr").forEach(tr => {
+  const r = S.prod[tr.dataset.row];
+  const hay = [r.machine, r.order, r.denom, r.notes].join(" ").toLowerCase();
+  tr.style.display = !q || hay.includes(q) ? "" : "none";
+ });
+}
+
 function paint(){
- document.querySelectorAll("input[data-g]").forEach(el => {
-  const g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
-  const isCalc = g === "prod" && CALC.includes(f);
-  el.readOnly = isCalc;               // التعديل متاح للجميع، عدا الخانات المحسوبة
+ document.querySelectorAll("[data-g]").forEach(el => {
+  const g = el.dataset.g, f = el.dataset.f, c = ref(g, el.dataset.k);
+  if (el.tagName === "SELECT"){ el.value = getStatus(c); el.className = "s-" + el.value; el.disabled = readOnly; return; }
   if (el === document.activeElement) return;
-  let v;
-  if (g === "att") v = S.att[f];
-  else if (isCalc) v = f === "daily" ? fmt(dailyOf(S.prod[k])) : fmt(orderTotal(k));
-  else v = S[g][k][f];
-  const s = v == null ? "" : String(v);
+  const v = c[f], s = v == null ? "" : String(v);
   if (el.value !== s) el.value = s;
+  el.readOnly = readOnly;
+  if (g === "maint" && (f === "wDate" || f === "mDate")){
+   const sf = f === "wDate" ? "wStat" : "mStat", d = parseDM(v), t0 = new Date(); t0.setHours(0,0,0,0);
+   el.classList.toggle("late", !c[sf] && !!d && d < t0);
+  }
  });
  document.querySelectorAll("button.st").forEach(b => {
   const on = S.maint[b.dataset.k][b.dataset.f];
   b.classList.toggle("on", !!on);
   b.textContent = on ? "✔ تمت" : "قيد الانتظار";
+  b.disabled = readOnly;
  });
- stats();
- updateCharts();
+ document.querySelectorAll(".edit-only").forEach(b => b.style.display = readOnly ? "none" : "");
+ stats(); renderAlerts(); renderLog(); updateCharts(); filterRows();
 }
 
 function stats(){
  const a = S.att, tot = num(a.s1)+num(a.s2)+num(a.s3)+num(a.sup);
  $("att-total").value = tot; $("st-att").textContent = tot;
  $("st-s1").textContent = num(a.s1); $("st-s2").textContent = num(a.s2); $("st-sup").textContent = num(a.sup);
- let sum = 0, active = 0; const rows = Object.values(S.prod);
- rows.forEach(r => { sum += dailyOf(r); if (isActive(r)) active++; });
- $("st-prod").textContent = fmt(sum);
+ let sum = 0, active = 0, tgt = 0, tgtDone = 0; const rows = Object.entries(S.prod);
+ rows.forEach(([k,r]) => {
+  const d = num(r.daily), t = num(r.target); sum += d;
+  if (getStatus(r) === "active") active++;
+  if (t > 0){ tgt += t; tgtDone += Math.min(d, t); }
+  const pct = t > 0 ? d / t * 100 : null, bar = $("pg-"+k);
+  if (bar){
+   bar.style.width = Math.min(pct || 0, 100) + "%";
+   bar.style.background = pct == null ? "var(--mut)" : pct < 50 ? "var(--bad)" : pct < 90 ? "var(--warn)" : "var(--ok)";
+   $("pt-"+k).textContent = pct == null ? "حدد المستهدف" : Math.round(pct) + "%";
+  }
+ });
+ $("st-prod").textContent = sum.toLocaleString("en-US");
  $("st-act").textContent = active + " / " + rows.length;
- $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد";
+ $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد/الصيانة";
+ if (tgt > 0){ const p = Math.round(tgtDone / tgt * 100); $("st-tgt").textContent = p + "%"; $("st-tgtmsg").textContent = tgtDone.toLocaleString("en-US") + " من " + tgt.toLocaleString("en-US"); }
+ else { $("st-tgt").textContent = "—"; $("st-tgtmsg").textContent = "حدد المستهدف لكل ماكينة"; }
+ const prev = Object.keys(S.history || {}).filter(d => d < dayKey()).sort().pop(), de = $("st-delta");
+ if (prev){
+  const ps = Object.values(S.history[prev]).reduce((s,v) => s + num(v), 0);
+  if (ps > 0){ const ch = Math.round((sum - ps) / ps * 100); de.textContent = (ch >= 0 ? "▲ " : "▼ ") + Math.abs(ch) + "% عن " + prev; de.style.color = ch >= 0 ? "var(--ok)" : "var(--bad)"; }
+  else de.textContent = "";
+ } else de.textContent = "";
  const m = Object.values(S.maint), all = m.length*2, done = m.reduce((s,x)=>s+(x.wStat?1:0)+(x.mStat?1:0),0), el = $("st-maint");
  const full = all > 0 && done === all;
  el.textContent = (full ? "مكتملة" : "قيد التنفيذ") + ` (${done}/${all})`;
@@ -320,85 +355,149 @@ function stats(){
  $("st-upd").textContent = "آخر تحديث: " + (S.updatedAt ? new Date(S.updatedAt).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}) : "—");
 }
 
-function onEdit(e){
- const el = e.target, g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
- if (g === "prod" && CALC.includes(f)) return;
- if (g === "att"){ S.att[f] = el.value; queue({att:{[f]:el.value}}); }
- else {
-  S[g][k][f] = el.value;
-  queue({[g]:{[k]:{[f]:el.value}}});
-  if (g === "prod" && !S.dayDate){ S.dayDate = todayStr(); queue({dayDate:S.dayDate}); }
- }
- paint();
+/* ---------- التنبيهات ---------- */
+function renderAlerts(){
+ const A = [], now = new Date(), t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+ Object.values(S.prod).forEach(r => {
+  const s = getStatus(r), d = num(r.daily), tg = num(r.target);
+  if (s === "stopped") A.push(["bad", `⛔ ${r.machine} متوقفة` + (r.notes ? ` — ${r.notes}` : "")]);
+  else if (s === "setup") A.push(["warn", `🟡 ${r.machine} قيد الإعداد`]);
+  else if (s === "maint") A.push(["warn", `🔧 ${r.machine} في الصيانة`]);
+  else if (tg > 0 && now.getHours() >= 15 && d / tg < 0.5) A.push(["warn", `📉 ${r.machine} أقل من 50% من المستهدف (${Math.round(d/tg*100)}%)`]);
+ });
+ Object.values(S.maint).forEach(m => [["wDate","wStat","الأسبوعية"],["mDate","mStat","الشهرية"]].forEach(([df,sf,lbl]) => {
+  if (m[sf]) return; const d = parseDM(m[df]); if (!d) return;
+  const diff = Math.round((d - t0) / 864e5);
+  if (diff < 0) A.push(["bad", `🛠️ الصيانة ${lbl} متأخرة لـ ${m.machine} (${m[df]})`]);
+  else if (diff <= 2) A.push(["warn", `⏰ الصيانة ${lbl} لـ ${m.machine} ${diff === 0 ? "اليوم" : "خلال " + diff + " يوم"}`]);
+ }));
+ if (num(S.att.s1) + num(S.att.s2) + num(S.att.s3) === 0) A.push(["warn", "👥 لم يُسجَّل حضور للورديات"]);
+ $("alerts").innerHTML = A.length ? A.map(([c,t]) => `<div class="al ${c}">${esc(t)}</div>`).join("") : `<div class="al ok">✅ لا توجد تنبيهات — الخط يعمل بشكل طبيعي</div>`;
+ $("al-n").textContent = A.length ? A.length + " تنبيه" : "سليم";
 }
 
+/* ---------- سجل التعديلات ---------- */
+function addLog(text){
+ const ts = String(Date.now()), t = new Date().toISOString();
+ S.log[ts] = {t, m:text}; queue({log:{[ts]:{t, m:text}}}); renderLog();
+}
+function renderLog(){
+ const ks = Object.keys(S.log || {}).sort().reverse().slice(0, 12);
+ $("log").innerHTML = ks.length ? ks.map(k => { const e = S.log[k];
+  return `<div><small>${esc(new Date(e.t).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}))}</small><span>${esc(e.m)}</span></div>`; }).join("") : `<div><span style="color:var(--mut)">لا توجد تعديلات مسجلة بعد</span></div>`;
+}
+
+/* ---------- التعديل ---------- */
+function onEdit(e){
+ const el = e.target, g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
+ if (readOnly) return;
+ ref(g,k)[f] = el.value; queue(mk(g,k,f,el.value));
+ if (g === "prod" && f === "daily"){
+  const d = dayKey(), m = S.prod[k].machine;
+  (S.history[d] = S.history[d] || {})[m] = num(el.value);
+  queue({history:{[d]:{[m]:num(el.value)}}});
+ }
+ stats(); renderAlerts(); updateCharts();
+ if (el.tagName === "SELECT") el.className = "s-" + el.value;
+}
+function onChange(e){
+ if (readOnly) return;
+ const el = e.target, g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
+ const who = (g === "prod" || g === "maint") ? ref(g,k).machine : g === "att" ? "الحضور" : "التسليم";
+ const val = el.tagName === "SELECT" ? STAT[el.value] : String(el.value).slice(0, 40);
+ addLog(`${who} ← ${FL[f] || f}: ${val}`);
+}
 function onToggle(e){
  const b = e.currentTarget, k = b.dataset.k, f = b.dataset.f;
  S.maint[k][f] = !S.maint[k][f];
- queue({maint:{[k]:{[f]:S.maint[k][f]}}}); paint();
+ queue(mk("maint",k,f,S.maint[k][f]));
+ addLog(`${S.maint[k].machine} ← ${f === "wStat" ? "الصيانة الأسبوعية" : "الصيانة الشهرية"}: ${S.maint[k][f] ? "تمت" : "قيد الانتظار"}`);
+ paint();
 }
 
-/* ---------- ترحيل اليوم السابق تلقائياً (بعد الدخول بكلمة السر فقط) ---------- */
-function checkRollover(){
- if (!tok || !loaded || !S.dayDate) return;
- const t = todayStr();
- if (S.dayDate >= t) return;
- const old = S.dayDate, patch = {log:{[old]:{}}, prod:{}, dayDate:t};
- for (const k in S.prod){
-  const r = S.prod[k], d = dailyOf(r);
-  if (d > 0) patch.log[old][k] = {order:r.order, daily:d};
-  patch.prod[k] = {t12:"-", t3:"-", t5:"-", t8:"-"};
- }
- if (!Object.keys(patch.log[old]).length) delete patch.log;
- merge(S, patch); queue(patch); paint();
+/* ---------- الأرشيف وإغلاق اليوم ---------- */
+function archive(clear){
+ if (readOnly) return;
+ if (clear && !confirm("سيتم ترحيل إنتاج اليوم للأرشيف ثم تصفير حقول اليوم والفترات لبدء يوم جديد. متابعة؟")) return;
+ const d = dayKey(); S.history[d] = S.history[d] || {};
+ Object.keys(S.prod).forEach(k => {
+  const r = S.prod[k], v = num(r.daily);
+  S.history[d][r.machine] = v; queue({history:{[d]:{[r.machine]:v}}});
+  if (clear) ["daily","t12","t3","t5","t8"].forEach(f => { r[f] = "-"; queue(mk("prod",k,f,"-")); });
+ });
+ addLog(clear ? "إغلاق اليوم: ترحيل الإنتاج للأرشيف وتصفير الحقول" : "حفظ إنتاج اليوم في الأرشيف");
+ paint();
 }
+
+/* ---------- التصدير والطباعة ---------- */
+function exportCSV(){
+ const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+ const rows = [["الماكينة","أمر الإنتاج","الفئة","الحالة","المستهدف","الإنتاج اليومي","12 PM","3 PM","5 PM","8 PM","الإجمالي","ملاحظات"]];
+ Object.values(S.prod).forEach(r => rows.push([r.machine,r.order,r.denom,STAT[getStatus(r)],r.target,r.daily,r.t12,r.t3,r.t5,r.t8,r.total,r.notes]));
+ rows.push([]); rows.push(["الأرشيف التاريخي"]); rows.push(["التاريخ","الماكينة","الإنتاج"]);
+ Object.keys(S.history).sort().forEach(d => Object.entries(S.history[d]).forEach(([m,v]) => rows.push([d,m,v])));
+ const csv = "\uFEFF" + rows.map(r => r.map(q).join(",")).join("\r\n");
+ const a = document.createElement("a");
+ a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+ a.download = "line3-" + dayKey() + ".csv"; a.click();
+ setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function printReport(){ document.body.classList.remove("qrp"); window.print(); }
 
 /* ---------- الرسوم البيانية ---------- */
+function mkChart(id, type, opts){ return new Chart($(id).getContext("2d"), {type, data:{labels:[],datasets:[]}, options:Object.assign({responsive:true, maintainAspectRatio:false}, opts || {})}); }
 function initCharts(){
- if (typeof Chart === "undefined") return;
- const ctx = $("productionChart").getContext("2d");
- prodChart = new Chart(ctx, {
-  type: 'bar',
-  data: { labels: [], datasets: [] },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
- });
+ mainChart = mkChart("productionChart", "bar");
+ denomChart = mkChart("denomChart", "doughnut", {plugins:{legend:{position:"bottom"}}});
+ periodChart = mkChart("periodChart", "bar", {scales:{y:{beginAtZero:true}}});
 }
-
+function themeChart(c){
+ const mut = css("--mut"), line = css("--line");
+ c.options.color = mut;
+ c.options.plugins = c.options.plugins || {};
+ c.options.plugins.legend = Object.assign(c.options.plugins.legend || {}, {labels:{color:mut, font:{family:"Cairo"}}});
+ if (c.options.scales) Object.keys(c.options.scales).forEach(a => { c.options.scales[a].ticks = {color:mut}; c.options.scales[a].grid = {color:line}; });
+}
 function updateCharts(){
- if(!prodChart) return;
- const mode = $("chartViewMode").value;
- const L = effLog();
- const dates = Object.keys(L).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
-
- if(mode === 'daily') {
-  const colors = ['#2563eb', '#16a34a', '#f59e0b', '#9333ea', '#db2777'];
-  prodChart.data.labels = dates;
-  prodChart.data.datasets = Object.keys(S.prod).map((k, idx) => ({
-   label: S.prod[k].machine,
-   data: dates.map(d => num(L[d]?.[k]?.daily)),
-   backgroundColor: colors[idx % colors.length]
-  }));
+ if (!mainChart) return;
+ const mode = $("chartViewMode").value, range = +$("chartRange").value, H = S.history || {};
+ let dates = Object.keys(H).sort(); if (range > 0) dates = dates.slice(-range);
+ const wantType = mode === "total" ? "line" : "bar";
+ if (mainChart.config.type !== wantType){ mainChart.destroy(); mainChart = mkChart("productionChart", wantType); }
+ const names = Object.values(S.prod).map(p => p.machine);
+ let labels, sets;
+ if (mode === "daily"){
+  labels = dates;
+  sets = names.map((n,i) => ({label:n, data:dates.map(d => num((H[d]||{})[n])), backgroundColor:PCOL[i % PCOL.length]}));
+ } else if (mode === "total"){
+  labels = dates;
+  sets = [{label:"إجمالي إنتاج الخط", data:dates.map(d => Object.values(H[d]).reduce((s,v) => s + num(v), 0)), borderColor:"#2563eb", backgroundColor:"rgba(37,99,235,.18)", fill:true, tension:.3}];
  } else {
-  const monthsData = {};
-  dates.forEach(d => {
-   const mk = d.substring(0, 7);
-   if(!monthsData[mk]) monthsData[mk] = 0;
-   Object.values(L[d]).forEach(e => { monthsData[mk] += num(e.daily); });
-  });
-  const monthLabels = Object.keys(monthsData).sort();
-  prodChart.data.labels = monthLabels;
-  prodChart.data.datasets = [{ label: 'إجمالي الإنتاج الشهري', data: monthLabels.map(m => monthsData[m]), backgroundColor: '#1F4E79' }];
+  const mo = {}; Object.keys(H).sort().forEach(d => { const m = d.slice(0,7); mo[m] = (mo[m] || 0) + Object.values(H[d]).reduce((s,v) => s + num(v), 0); });
+  labels = Object.keys(mo); sets = [{label:"إجمالي الإنتاج الشهري", data:labels.map(m => mo[m]), backgroundColor:"#1F4E79"}];
  }
- prodChart.update();
+ mainChart.options.scales = {y:{beginAtZero:true}};
+ mainChart.data.labels = labels; mainChart.data.datasets = sets;
+ themeChart(mainChart); mainChart.update();
+ $("emptyMain").style.display = labels.length ? "none" : "flex";
+
+ const dm = {}; Object.values(S.prod).forEach(r => { const v = num(r.daily); if (v > 0) dm[r.denom || "غير محدد"] = (dm[r.denom || "غير محدد"] || 0) + v; });
+ denomChart.data.labels = Object.keys(dm);
+ denomChart.data.datasets = [{data:Object.values(dm), backgroundColor:PCOL, borderColor:css("--card")}];
+ themeChart(denomChart); denomChart.update();
+
+ const per = [["t12","12 PM"],["t3","3 PM"],["t5","5 PM"],["t8","8 PM"]];
+ periodChart.data.labels = names;
+ periodChart.data.datasets = per.map(([f,l],i) => ({label:l, data:Object.values(S.prod).map(r => num(r[f])), backgroundColor:PCOL[i]}));
+ themeChart(periodChart); periodChart.update();
 }
 
-/* ---------- الحفظ ---------- */
+/* ---------- الحفظ والمزامنة ---------- */
 function merge(t, s){ for (const k in s){ if (s[k] && typeof s[k]==="object") merge(t[k] = t[k] || {}, s[k]); else t[k] = s[k]; } return t; }
-// التعديلات تُسجَّل دائماً في الانتظار؛ لا تُرسل للسحابة إلا بوجود جلسة (كلمة السر)
 function queue(p){
- merge(pending, p);
- if (tok){ setStatus("busy","💾 جاري الحفظ…"); clearTimeout(timer); timer = setTimeout(flush, 600); }
- else okStatus();
+ if (readOnly) return;
+ merge(pending, p); setStatus("busy","💾 جاري الحفظ…");
+ clearTimeout(timer); timer = setTimeout(flush, 600);
 }
 
 const DB_URL = "https://cbeline3-default-rtdb.firebaseio.com";
@@ -422,48 +521,32 @@ async function getToken(){
  }
  return tok.id;
 }
-function okStatus(){
- if (tok) setStatus(hasPending() || writing ? "busy" : "", hasPending() || writing ? "💾 جاري الحفظ…" : "☁️ متصل — الحفظ تلقائي ولحظي");
- else if (hasPending()) setStatus("warn", "✏️ تعديلات غير محفوظة — أدخل كلمة السر لحفظها");
- else setStatus("warn", "👁️ التعديل متاح — الحفظ يتطلب كلمة السر");
-}
-function applyAuth(){ $("authBtn").textContent = tok ? "🔓 خروج" : "🔒 دخول للحفظ"; okStatus(); paint(); checkRollover(); }
-async function authClick(){
- if (tok){
-  if (hasPending()){ clearTimeout(timer); await flush(); }
-  tok = null; saveTok(); applyAuth();
- } else { $("pwErr").textContent = ""; $("pw").value = ""; $("pwModal").classList.add("open"); $("pw").focus(); }
-}
+function okStatus(){ setStatus(readOnly ? "warn" : "", readOnly ? "👁️ عرض فقط — يتحدث تلقائياً" : "☁️ متصل ومحدَّث لحظياً"); }
+function applyAuth(){ readOnly = !tok; $("authBtn").textContent = tok ? "🔓 خروج" : "🔒 دخول للتعديل"; okStatus(); paint(); }
+function authClick(){ if (tok){ tok = null; saveTok(); pending = {}; applyAuth(); } else { $("pwErr").textContent = ""; $("pw").value = ""; $("pwModal").classList.add("open"); $("pw").focus(); } }
 function closePw(){ $("pwModal").classList.remove("open"); }
-async function doLogin(){
- try { await login($("pw").value); }
- catch(e){ $("pwErr").textContent = "كلمة السر غير صحيحة"; return; }
- closePw(); applyAuth();
- // حفظ كل التعديلات التي أُجريت قبل الدخول
- if (hasPending()){ setStatus("busy","💾 جاري حفظ التعديلات…"); clearTimeout(timer); flush(); }
-}
-function sessionEnded(){ tok = null; saveTok(); applyAuth(); setStatus("warn", "🔒 انتهت الجلسة — أدخل كلمة السر لحفظ التعديلات"); }
+async function doLogin(){ try { await login($("pw").value); closePw(); applyAuth(); } catch(e){ $("pwErr").textContent = "كلمة السر غير صحيحة"; } }
+function sessionEnded(){ tok = null; saveTok(); pending = {}; applyAuth(); setStatus("warn", "🔒 انتهت الجلسة — سجّل الدخول مجدداً للتعديل"); }
 document.addEventListener("keydown", e => { if (e.key === "Enter" && $("pwModal").classList.contains("open")) doLogin(); });
-window.addEventListener("beforeunload", e => { if (hasPending() || writing){ e.preventDefault(); e.returnValue = ""; } });
 
 async function flush(){
- if (writing || !hasPending() || !tok) return;
+ if (writing || !Object.keys(pending).length) return;
+ if (!tok){ pending = {}; return; }
  writing = true;
  const patch = pending; pending = {};
  S.updatedAt = new Date().toISOString(); patch.updatedAt = S.updatedAt;
- const restore = () => { merge(patch, pending); pending = patch; };
  try {
-  let t; try { t = await getToken(); } catch(e){ writing = false; restore(); return sessionEnded(); }
+  let t; try { t = await getToken(); } catch(e){ writing = false; return sessionEnded(); }
   const r = await fetch(NODE + ".json?auth=" + encodeURIComponent(t), {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(flat(patch))});
-  if (r.status === 401 || r.status === 403){ writing = false; restore(); return sessionEnded(); }
+  if (r.status === 401 || r.status === 403){ writing = false; return sessionEnded(); }
   if (!r.ok) throw new Error(r.status);
-  if (!hasPending()) okStatus();
+  if (!Object.keys(pending).length) okStatus();
  } catch (e) {
-  restore();
+  merge(patch, pending); pending = patch;
   setStatus("warn", "⚠️ تعذر الحفظ، سنعيد المحاولة"); clearTimeout(timer); timer = setTimeout(flush, 4000);
  }
  writing = false;
- if (hasPending() && tok){ clearTimeout(timer); timer = setTimeout(flush, 300); }
+ if (Object.keys(pending).length){ clearTimeout(timer); timer = setTimeout(flush, 300); }
 }
 
 async function pull(){
@@ -471,26 +554,34 @@ async function pull(){
   const r = await fetch(NODE + ".json");
   if (!r.ok) throw new Error(r.status);
   const d = await r.json();
-  if (d){ const keep = JSON.parse(JSON.stringify(pending)); merge(S, d); merge(S, keep); } // التعديلات غير المحفوظة لا تضيع
-  loaded = true;
-  if (!writing) okStatus();
+  if (d){ const keep = JSON.parse(JSON.stringify(pending)); merge(S, d); merge(S, keep); try { localStorage.setItem("l3cache", JSON.stringify(S)); } catch(e){} }
+  if (!Object.keys(pending).length && !writing) okStatus();
   paint();
-  checkRollover();
- } catch (e) { setStatus("warn", "⚠️ تعذر الاتصال بالسحابة"); }
+ } catch (e) { setStatus("warn", navigator.onLine ? "⚠️ تعذر الاتصال بالسحابة" : "📴 بدون إنترنت — عرض آخر نسخة محفوظة"); }
 }
 let pullTimer = null;
 function pullSoon(){ clearTimeout(pullTimer); pullTimer = setTimeout(pull, 300); }
 
 function connect(){
  try { const t = JSON.parse(localStorage.getItem("l3tok") || "null"); if (t && t.refresh) tok = t; } catch(e){}
+ try { const c = JSON.parse(localStorage.getItem("l3cache") || "null"); if (c) merge(S, c); } catch(e){}
  applyAuth();
- if (DB_URL.includes("PASTE_")){ setStatus("warn", "⚙️ لم يتم ربط قاعدة البيانات بعد"); paint(); return; }
  pull();
  try { const es = new EventSource(NODE + ".json"); es.addEventListener("put", pullSoon); es.addEventListener("patch", pullSoon); } catch (e) {}
  setInterval(pull, 15000);
+ setInterval(() => { renderAlerts(); }, 60000);
 }
 
-/* ---------- الباركود ---------- */
+/* ---------- الثيم والباركود ---------- */
+function toggleTheme(){
+ const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light");
+ const nx = cur === "dark" ? "light" : "dark";
+ document.documentElement.dataset.theme = nx;
+ try { localStorage.setItem("l3theme", nx); } catch(e){}
+ updateCharts();
+}
+try { const th = localStorage.getItem("l3theme"); if (th) document.documentElement.dataset.theme = th; } catch(e){}
+
 function openQR(){ $("qrUrl").value = location.href; $("qrModal").classList.add("open"); drawQR(); }
 function closeQR(){ $("qrModal").classList.remove("open"); }
 function drawQR(){
@@ -498,81 +589,8 @@ function drawQR(){
  try { new QRCode(box, {text:$("qrUrl").value || location.href, width:180, height:180, colorDark:"#0d233a", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.H}); }
  catch(e){ box.textContent = "تعذر إنشاء الباركود"; }
 }
-function printQR(){ document.body.classList.add("pr-qr"); setTimeout(() => window.print(), 100); }
-
-/* ---------- تقرير الطباعة ---------- */
-function badge(on, yes, no){ return `<span class="bd ${on ? "ok" : "wt"}">${on ? yes : no}</span>`; }
-function buildReport(){
- const now = new Date();
- const dateAr = now.toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
- const timeAr = now.toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"});
- const keys = Object.keys(S.prod), rows = keys.map(k => S.prod[k]);
- const a = S.att, attTot = num(a.s1)+num(a.s2)+num(a.s3)+num(a.sup);
- const sumDaily = rows.reduce((s,r) => s + dailyOf(r), 0);
- const active = rows.filter(isActive).length;
- const m = Object.values(S.maint), mAll = m.length*2, mDone = m.reduce((s,x)=>s+(x.wStat?1:0)+(x.mStat?1:0),0);
- const sums = ["t12","t3","t5","t8"].map(f => rows.reduce((s,r) => s + num(r[f]), 0));
-
- const kpis = `<div class="rp-kpis">
-  <div class="rp-kpi" style="--k:#2563eb"><small>إجمالي الحضور</small><b>${fmt(attTot)}</b><em>وردية 1: ${num(a.s1)} | وردية 2: ${num(a.s2)} | إشراف: ${num(a.sup)}</em></div>
-  <div class="rp-kpi" style="--k:#16a34a"><small>الماكينات النشطة / الإجمالي</small><b>${active} / ${rows.length}</b><em>${active === rows.length ? "جميع الماكينات تعمل" : (rows.length - active) + " متوقفة أو قيد الإعداد"}</em></div>
-  <div class="rp-kpi" style="--k:#f59e0b"><small>إجمالي الإنتاج اليومي</small><b>${fmt(sumDaily)}</b><em>تاريخ التسجيل: ${esc(liveDate())}</em></div>
-  <div class="rp-kpi" style="--k:#9333ea"><small>الصيانة الدورية</small><b>${mDone} / ${mAll}</b><em>${mDone === mAll ? "مكتملة" : "قيد التنفيذ"}</em></div></div>`;
-
- const prodRows = keys.map(k => { const r = S.prod[k]; return `<tr>
-  <td class="m">${esc(r.machine)}</td><td>${esc(r.order)}</td><td>${esc(r.denom)}</td>
-  <td><b>${fmt(dailyOf(r))}</b></td><td>${esc(r.t12)}</td><td>${esc(r.t3)}</td><td>${esc(r.t5)}</td><td>${esc(r.t8)}</td>
-  <td><b>${fmt(orderTotal(k))}</b></td>
-  <td class="nt"><span class="bd ${isActive(r) ? "ok" : "st"}">${isActive(r) ? "يعمل" : "متوقف/إعداد"}</span> ${esc(r.notes)}</td></tr>`; }).join("");
- const prodTable = `<table><thead><tr><th>الماكينة</th><th>أمر الإنتاج</th><th>الفئة</th><th>الإنتاج اليومي</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الأمر (كل الأيام)</th><th>الحالة / ملاحظات</th></tr></thead>
-  <tbody>${prodRows}</tbody>
-  <tfoot><tr><td colspan="3">الإجمالي</td><td>${fmt(sumDaily)}</td><td>${fmt(sums[0])}</td><td>${fmt(sums[1])}</td><td>${fmt(sums[2])}</td><td>${fmt(sums[3])}</td><td colspan="2"></td></tr></tfoot></table>`;
-
- const attTable = `<table><thead><tr><th>البند</th><th>العدد</th></tr></thead><tbody>` +
-  ATT.map(([f,l]) => `<tr><td class="m">${l}</td><td>${num(a[f])}</td></tr>`).join("") +
-  `</tbody><tfoot><tr><td>إجمالي الحضور</td><td>${attTot}</td></tr></tfoot></table>`;
-
- const maintTable = `<table><thead><tr><th>الماكينة</th><th>موعد الأسبوعية</th><th>حالتها</th><th>موعد الشهرية</th><th>حالتها</th></tr></thead><tbody>` +
-  Object.keys(S.maint).map(k => { const x = S.maint[k]; return `<tr><td class="m">${esc(x.machine)}</td><td>${esc(x.wDate)}</td><td>${badge(x.wStat,"✔ تمت","قيد الانتظار")}</td><td>${esc(x.mDate)}</td><td>${badge(x.mStat,"✔ تمت","قيد الانتظار")}</td></tr>`; }).join("") +
-  `</tbody></table>`;
-
- const L = effLog();
- const dates = Object.keys(L).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse().slice(0,7);
- const cell = (d,k) => { const v = num(L[d]?.[k]?.daily); return v ? fmt(v) : "—"; };
- const histTable = dates.length ? `<table><thead><tr><th>التاريخ</th>${keys.map(k => `<th>${esc(S.prod[k].machine)}</th>`).join("")}<th>إجمالي اليوم</th></tr></thead><tbody>` +
-  dates.map(d => `<tr><td class="m">${d}${d === liveDate() ? " (اليوم)" : ""}</td>${keys.map(k => `<td>${cell(d,k)}</td>`).join("")}<td><b>${fmt(keys.reduce((s,k) => s + num(L[d]?.[k]?.daily), 0))}</b></td></tr>`).join("") +
-  `</tbody></table>` : "";
-
- let img = "";
- try { if (prodChart) img = prodChart.toBase64Image(); } catch(e){}
- const chartMode = $("chartViewMode").value === "monthly" ? "الإنتاج الشهري" : "الإنتاج اليومي";
-
- const unsaved = (!tok && hasPending()) ? `<div class="rp-warn">⚠️ تنبيه: هذا التقرير يتضمن تعديلات لم تُحفظ بعد في السحابة.</div>` : "";
-
- return `<div class="rp">
-  <div class="rp-head">
-   <div class="lft"><div class="logo">🏭</div><div><p class="org">البنك المركزي المصري — الإدارة العامة لطباعة أوراق النقد</p><h1>تقرير متابعة خط الإنتاج (خط 3)</h1></div></div>
-   <div class="meta">📅 ${esc(dateAr)}<br>🕒 وقت إصدار التقرير: ${esc(timeAr)}<br>🗓️ تاريخ تسجيل الإنتاج: ${esc(liveDate())}</div>
-  </div>
-  ${unsaved}
-  ${kpis}
-  <h2>📋 سجل إنتاج الماكينات</h2>${prodTable}
-  <div class="rp-two">
-   <div><h2>👷 الحضور والورديات</h2>${attTable}</div>
-   <div><h2>🔧 جدول الصيانة الدورية</h2>${maintTable}</div>
-  </div>
-  ${histTable ? `<h2>🗂️ سجل الإنتاج اليومي (آخر ${dates.length} أيام)</h2>${histTable}` : ""}
-  ${img ? `<h2>📊 الرسم البياني — ${chartMode}</h2><div class="rp-chart"><img src="${img}" alt="chart"></div>` : ""}
-  <div class="rp-sign"><div>مسؤول الخط</div><div>رئيس القسم</div><div>مدير الإدارة</div></div>
-  <div class="rp-foot">البنك المركزي المصري — نظام إدارة ومتابعة خط الإنتاج 3 © 2026</div>
- </div>`;
-}
-function printReport(){
- $("report").innerHTML = buildReport();
- document.body.classList.add("pr-rep");
- setTimeout(() => window.print(), 250);
-}
-window.addEventListener("afterprint", () => document.body.classList.remove("pr-rep","pr-qr"));
+function printQR(){ document.body.classList.add("qrp"); window.print(); }
+window.addEventListener("afterprint", () => document.body.classList.remove("qrp"));
 
 function showDate(){ $("today").textContent = new Date().toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); }
 showDate(); setInterval(showDate, 60000);
