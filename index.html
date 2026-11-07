@@ -24,8 +24,9 @@ h1{font-size:17px;margin:0}.sub{font-size:12px;color:#cbd5e1;margin:2px 0 0}
 .pill{padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;color:#fff;background:#15803d}
 .pill.busy{background:#1d4ed8}.pill.warn{background:#b45309}
 .dt{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:4px 14px;text-align:center;line-height:1.3}.dt small{display:block;font-size:10px;color:#cbd5e1}.dt b{font-size:13px}
+.uchip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:4px 12px;line-height:1.3;text-align:center}.uchip b{display:block;font-size:13px}.uchip small{font-size:10px;color:#fcd34d}
 .btn{border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;color:#fff;background:#2563eb}
-.btn:hover{filter:brightness(1.1)}.btn.gray{background:#4b5563}.btn.green{background:#15803d}.btn.org{background:#c2410c}.btn.red{background:#b91c1c}.btn.sm{padding:5px 10px;font-size:11px}
+.btn:hover{filter:brightness(1.1)}.btn.gray{background:#4b5563}.btn.green{background:#15803d}.btn.org{background:#c2410c}.btn.red{background:#b91c1c}.btn.pur{background:#7c3aed}.btn.sm{padding:5px 10px;font-size:11px}
 main{flex:1;max-width:1280px;width:100%;margin:0 auto;padding:20px 16px;display:grid;gap:20px}
 .stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 .stat{background:var(--card);border:1px solid var(--line);border-right:4px solid var(--c);border-radius:12px;padding:14px 16px}
@@ -64,11 +65,30 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 .box{background:var(--card);border-radius:16px;max-width:420px;width:100%;padding:22px;text-align:center;display:grid;gap:12px;max-height:92vh;overflow:auto}
 .box h3{margin:0}.box p{margin:0;font-size:12px;color:var(--mut)}
 .box.form{max-width:480px;text-align:right}
-.box.form label{display:grid;gap:4px;font-size:12px;color:var(--mut);font-weight:600}
-.box.form input,.box.form select,.box.form textarea{text-align:right;color:var(--ink)}
+.box.wide{max-width:760px;text-align:right}
+.box label,.box.form label{display:grid;gap:4px;font-size:12px;color:var(--mut);font-weight:600;text-align:right}
+.box.form input,.box.form select,.box.form textarea,.box label input,.box label select{text-align:right;color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
 #qrcode{display:inline-block;padding:12px;background:#fff;border-radius:12px;border:1px solid var(--line)}
 .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ترحيب */
+.wel{font-size:46px;line-height:1}
+.wel-h{font-size:20px;font-weight:800;color:var(--acc)}
+.wel-l{display:grid;gap:6px;text-align:right;font-size:13px}
+.wel-l div{background:var(--soft);border-radius:9px;padding:8px 10px;border:1px solid var(--line)}
+.wel-l .bad{color:var(--bad)}.wel-l .ok{color:var(--ok)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(30px);background:#0d233a;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.3s;z-index:200;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* مستخدمون */
+.utbl td,.utbl th{font-size:12px;padding:7px 8px}
+.utbl select{min-width:100px;padding:4px 6px}
+.ubadge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
+.ubadge.on{background:rgba(22,163,74,.15);color:var(--ok)}.ubadge.off{background:rgba(185,28,28,.12);color:var(--bad)}
+.ufrm{display:grid;gap:10px;padding:12px;border:1px dashed var(--inl);border-radius:12px;background:var(--soft)}
+.pby{display:none}
 
 /* تنبيهات */
 #alerts{display:grid;gap:8px}
@@ -88,6 +108,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 .tag.ext{background:rgba(194,65,12,.12);color:var(--ext);border-color:var(--ext)}
 .tag.in3{background:rgba(31,78,121,.12);color:var(--acc);border-color:var(--acc)}
 .tag.fin{background:rgba(22,163,74,.15);color:var(--ok);border-color:var(--ok)}
+.tag.late{background:rgba(185,28,28,.12);color:var(--bad);border-color:var(--bad)}
 .pipe{display:flex;gap:6px;align-items:stretch;overflow-x:auto;padding:4px 0}
 .arrow{align-self:center;color:var(--mut);font-weight:800}
 .chip{min-width:120px;border:1px solid var(--inl);border-radius:10px;padding:8px 10px;background:var(--soft);display:grid;gap:2px;text-align:center}
@@ -110,9 +131,10 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  body.pq>*:not(#qrModal){display:none!important}
  body.pq .modal{position:static;background:none;display:flex}
  body.pq .acts{display:none}
- body:not(.pq) header .tools,body:not(.pq) .noprint,body:not(.pq) .modal,body:not(.pq) .otools{display:none!important}
+ body:not(.pq) header .tools,body:not(.pq) .noprint,body:not(.pq) .modal,body:not(.pq) .otools,body:not(.pq) .toast{display:none!important}
  body:not(.pq){background:#fff}
  body:not(.pq) header{position:static}
+ body:not(.pq) .pby{display:block;font-size:12px;color:#444}
 }
 </style>
 </head>
@@ -123,15 +145,20 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
   <p class="sub">الإدارة العامة لطباعة أوراق النقد - البنك المركزي المصري</p></div></div>
  <div class="tools">
   <div class="dt"><small>تاريخ اليوم</small><b id="today">—</b></div>
+  <div class="uchip" id="userChip" style="display:none"><b id="uName"></b><small id="uRole"></small></div>
   <span id="sync" class="pill warn">⏳ جاري الاتصال…</span>
+  <button class="btn pur" id="usersBtn" style="display:none" onclick="openUsers()">👥 المستخدمون</button>
+  <button class="btn gray" id="pwBtn" style="display:none" onclick="openPwChange()">🔑 كلمة السر</button>
   <button class="btn green" onclick="exportCSV()">⬇️ تصدير Excel</button>
   <button class="btn org" onclick="printReport()">🖨️ تقرير اليوم</button>
-  <button class="btn" onclick="openQR()">📱 باركود اللوحة</button>
-  <button class="btn gray" id="authBtn" onclick="authClick()">🔒 دخول للتعديل</button>
+  <button class="btn" onclick="openQR()">📱 باركود</button>
+  <button class="btn gray" onclick="toggleTheme()" title="الوضع الليلي / النهاري">🌓</button>
+  <button class="btn gray" id="authBtn" onclick="authClick()">🔒 تسجيل الدخول</button>
  </div>
 </div></header>
 
 <main>
+ <div class="pby" id="printBy"></div>
  <div id="alerts"></div>
 
  <div class="stats">
@@ -148,14 +175,14 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  </div>
 
  <section class="card">
-  <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span></div>
+  <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2>
+   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span><button class="btn org sm noprint" id="closeDayBtn" style="display:none" onclick="closeDay()">📅 إغلاق اليوم وبدء يوم جديد</button></div></div>
   <div class="scroll"><table>
    <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج</th><th>ملاحظات / الحالة</th></tr></thead>
    <tbody id="prod"></tbody></table></div>
   <datalist id="ordList"></datalist>
  </section>
 
- <!-- تتبع الأوامر عبر الماكينات والخطوط -->
  <section class="card">
   <div class="ch" style="background:#0e7490"><h2>🔀 تتبع أوامر الإنتاج (انتقال بين الماكينات والخطوط 1–4)</h2><span>مسار كل أمر من أول مرحلة حتى التسليم</span></div>
   <div class="otools">
@@ -164,6 +191,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
     <option value="active">النشطة</option>
     <option value="in3">الموجودة الآن على خط 3</option>
     <option value="ext">الموجودة الآن بخط آخر</option>
+    <option value="late">المتأخرة عن الموعد</option>
     <option value="done">المنتهية</option>
     <option value="all">الكل</option>
    </select>
@@ -177,7 +205,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <h3>📊 الرسوم البيانية للإنتاج (يومي وشهري)</h3>
    <div style="display:flex; gap:10px; align-items:center;">
     <select id="chartViewMode" onchange="updateCharts()" style="padding:4px 8px; border-radius:6px; font-size:12px;">
-     <option value="daily">الإنتاج اليومي (حسب الأيام)</option>
+     <option value="daily">الإنتاج اليومي (آخر 30 يوماً)</option>
      <option value="monthly">الإنتاج الشهري (حسب الشهور)</option>
     </select>
    </div>
@@ -191,7 +219,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <div class="att" id="att"></div>
   </section>
   <section class="card">
-   <div class="ch" style="background:var(--green)"><h3>🔧 جدول صيانة ماكينات خط 3 (أسبوعية الشهرية)</h3><span>فحص فني دقيق</span></div>
+   <div class="ch" style="background:var(--green)"><h3>🔧 جدول صيانة ماكينات خط 3 (أسبوعية الشهرية)</h3><span>فحص فني دقيق · التواريخ بصيغة يوم-شهر</span></div>
    <div class="scroll"><table>
     <thead><tr><th>اسم الماكينة</th><th>الصيانة الأسبوعية</th><th>حالة الأسبوعية</th><th>الصيانة الشهرية</th><th>حالة الشهرية</th></tr></thead>
     <tbody id="maint"></tbody></table></div>
@@ -204,20 +232,64 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <div class="ho"><textarea id="handover" placeholder="اكتب هنا ما تريد تسليمه للوردية التالية: أعطال، مواد ناقصة، أوامر معلّقة…"></textarea><small id="hoMeta"></small></div>
   </section>
   <section class="card">
-   <div class="ch" style="background:#475569"><h3>🕘 سجل الأحداث (آخر 60 حدث)</h3><span>انتقال الأوامر وتحديث المراحل</span></div>
+   <div class="ch" style="background:#475569"><h3>🕘 سجل الأحداث (آخر 60 حدث)</h3><span>مع اسم المستخدم المنفّذ</span></div>
    <div class="log" id="log"></div>
   </section>
  </div>
 </main>
 
 <footer>البنك المركزي المصري - الإدارة العامة لطباعة أوراق النقد | نظام إدارة ومتابعة خط الإنتاج 3 &copy; 2026</footer>
+<div class="toast" id="toast"></div>
 
+<!-- تسجيل الدخول -->
 <div id="pwModal" class="modal"><div class="box">
- <h3>🔐 دخول للتعديل</h3>
- <p>المشاهدة متاحة للجميع. أدخل كلمة السر للسماح بالتعديل.</p>
- <input id="pw" type="password" autocomplete="current-password" aria-label="كلمة السر">
+ <h3>🔐 تسجيل الدخول</h3>
+ <p>المشاهدة متاحة للجميع. أدخل اسم المستخدم وكلمة السر للتعديل.</p>
+ <label>اسم المستخدم (بالإنجليزية)<input id="lu" dir="ltr" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+ <label>كلمة السر<input id="pw" type="password" autocomplete="current-password" aria-label="كلمة السر"></label>
  <p id="pwErr" style="color:var(--bad)"></p>
- <div class="acts"><button class="btn gray" onclick="closePw()">إلغاء</button><button class="btn" onclick="doLogin()">دخول</button></div>
+ <div class="acts"><button class="btn gray" onclick="closePw()">إلغاء</button><button class="btn" id="loginBtn" onclick="doLogin()">دخول</button></div>
+</div></div>
+
+<!-- رسالة الترحيب -->
+<div id="wModal" class="modal"><div class="box">
+ <div class="wel" id="welIc">👋</div>
+ <div class="wel-h" id="welH"></div>
+ <p id="welSub"></p>
+ <div class="wel-l" id="welL"></div>
+ <div class="acts" style="justify-content:center"><button class="btn green" onclick="closeWel()">ابدأ العمل ✔</button></div>
+</div></div>
+
+<!-- تغيير كلمة السر -->
+<div id="cpModal" class="modal"><div class="box form">
+ <h3>🔑 تغيير كلمة السر</h3>
+ <label>كلمة السر الجديدة (6 أحرف على الأقل)<input id="cp1" type="password" autocomplete="new-password"></label>
+ <label>تأكيد كلمة السر<input id="cp2" type="password" autocomplete="new-password"></label>
+ <p id="cpMsg"></p>
+ <div class="acts"><button class="btn gray" onclick="closePwChange()">إلغاء</button><button class="btn green" onclick="doPwChange()">حفظ</button></div>
+</div></div>
+
+<!-- إدارة المستخدمين -->
+<div id="uModal" class="modal"><div class="box wide">
+ <h3>👥 إدارة المستخدمين</h3>
+ <div class="ufrm">
+  <b style="font-size:13px">➕ إنشاء مستخدم جديد</b>
+  <div class="two">
+   <label>الاسم الظاهر (بالعربية)<input id="nu_name" placeholder="مثال: أحمد محمود"></label>
+   <label>اسم المستخدم (إنجليزي)<input id="nu_user" dir="ltr" placeholder="ahmed.m" autocapitalize="none" spellcheck="false"></label>
+  </div>
+  <div class="two">
+   <label>كلمة السر (6 أحرف على الأقل)<input id="nu_pw" type="text" dir="ltr" autocomplete="off"></label>
+   <label>الدور<select id="nu_role"><option value="operator">مشغّل — يدخل بيانات الإنتاج والحضور</option><option value="supervisor">مشرف — يدير الأوامر والصيانة وإغلاق اليوم</option><option value="admin">مدير النظام — كل الصلاحيات</option></select></label>
+  </div>
+  <p id="nu_msg"></p>
+  <div class="acts"><button class="btn green" id="nu_btn" onclick="createUser()">إنشاء المستخدم</button></div>
+ </div>
+ <div class="scroll"><table class="utbl">
+  <thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>الدور</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr></thead>
+  <tbody id="uList"></tbody></table></div>
+ <p>لإعادة تعيين كلمة سر مستخدم آخر: عطّل حسابه وأنشئ حساباً جديداً، أو استخدم Firebase Console ← Authentication.</p>
+ <div class="acts"><button class="btn gray" onclick="closeUsers()">إغلاق</button></div>
 </div></div>
 
 <div id="qrModal" class="modal"><div class="box">
@@ -235,6 +307,15 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
+/* ---------- الوضع الليلي (يُطبَّق مبكراً) ---------- */
+try { const th = localStorage.getItem("l3theme"); if (th) document.documentElement.dataset.theme = th; } catch(e){}
+function toggleTheme(){
+ const r = document.documentElement;
+ const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+ const n = dark ? "light" : "dark"; r.dataset.theme = n;
+ try { localStorage.setItem("l3theme", n); } catch(e){}
+}
+
 /* ---------- البيانات الافتراضية ---------- */
 const DEF = {
  prod: {
@@ -254,8 +335,8 @@ const DEF = {
   "2026-10-14": { "Super Simultan 3": 250, "Super Orlof Intaglio 6": 800, "Check Numero Protecta 3": 750000 },
   "2026-10-15": { "Super Simultan 3": 265, "Super Orlof Intaglio 6": 870, "Check Numero Protecta 3": 806282 }
  },
- orders: {}, log: {}, handover: "", handoverAt: "",
- updatedAt: ""
+ days: {}, orders: {}, log: {}, handover: "", handoverAt: "",
+ updatedAt: "", updatedBy: ""
 };
 const S = JSON.parse(JSON.stringify(DEF));
 const $ = id => document.getElementById(id);
@@ -263,6 +344,7 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp
 const pad = n => String(n).padStart(2,"0");
 const todayKey = () => { const d = new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const safeKey = s => String(s).replace(/[.$#\[\]\/]/g,"_");
+const fdt = iso => iso ? new Date(iso).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}) : "—";
 
 function setStatus(type, message) {
   const el = $("sync"); if (!el) return;
@@ -272,6 +354,13 @@ const COLS = [["order","w"],["denom","w"],["daily","n"],["t12",""],["t3",""],["t
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
 const STATE_L = {waiting:"بالانتظار", running:"قيد التشغيل", done:"منتهية"};
 const STATE_I = {waiting:"⏳", running:"▶️", done:"✔"};
+
+/* ---------- الأدوار والصلاحيات ---------- */
+const ROLE_L = {admin:"مدير النظام", supervisor:"مشرف", operator:"مشغّل"};
+const ALL = ["admin","supervisor","operator"], SUP = ["admin","supervisor"];
+const PERM = {prod:ALL, att:ALL, handover:ALL, stage:ALL, maint:SUP, orderNew:SUP, orderMove:SUP, orderEdit:SUP, orderDel:SUP, closeDay:SUP, users:["admin"]};
+let me = null;
+const can = a => !!me && PERM[a].includes(me.role);
 
 let readOnly = true, pending = {}, timer = null, writing = false, prodChart = null;
 
@@ -297,24 +386,25 @@ function build(){
 
 function paint(){
  document.querySelectorAll("input[data-g]").forEach(el => {
-  if (el === document.activeElement) return;
   const g = el.dataset.g, f = el.dataset.f;
+  el.readOnly = !can(g === "att" ? "att" : g === "maint" ? "maint" : "prod");
+  if (el === document.activeElement) return;
   const v = g === "att" ? S.att[f] : S[g][el.dataset.k][f];
   const s = v == null ? "" : String(v);
   if (el.value !== s) el.value = s;
-  el.readOnly = readOnly;
  });
  document.querySelectorAll("button.st").forEach(b => {
   const on = S.maint[b.dataset.k][b.dataset.f];
   b.classList.toggle("on", !!on);
   b.textContent = on ? "✔ تمت" : "قيد الانتظار";
-  b.disabled = readOnly;
+  b.disabled = !can("maint");
  });
  const ho = $("handover");
  if (ho !== document.activeElement && ho.value !== (S.handover||"")) ho.value = S.handover || "";
- ho.readOnly = readOnly;
- $("hoMeta").textContent = S.handoverAt ? "آخر تعديل: " + new Date(S.handoverAt).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}) : "";
- $("newOrdBtn").style.display = readOnly ? "none" : "";
+ ho.readOnly = !can("handover");
+ $("hoMeta").textContent = S.handoverAt ? "آخر تعديل: " + fdt(S.handoverAt) + (S.handoverBy ? " — " + S.handoverBy : "") : "";
+ $("newOrdBtn").style.display = can("orderNew") ? "" : "none";
+ $("closeDayBtn").style.display = can("closeDay") ? "" : "none";
  $("ordList").innerHTML = ordersArr().filter(o => o.status !== "done").map(o => `<option value="${esc(o.no)}">${esc(o.denom||"")}</option>`).join("");
  stats(); renderOrders(); renderLog(); renderAlerts(); updateCharts();
 }
@@ -340,6 +430,7 @@ function ordTotals(o){
  const out = last ? num(last.qout) : 0, first = s[0] ? num(s[0].qin) : 0;
  return {waste, out, first, stages:s.length};
 }
+const isLate = o => o.status !== "done" && o.due && o.due < todayKey();
 
 function renderOrders(){
  const box = $("orders"); if (!box) return;
@@ -349,11 +440,12 @@ function renderOrders(){
   if (f === "active" && o.status === "done") return false;
   if (f === "in3" && pl !== "in3") return false;
   if (f === "ext" && pl !== "ext") return false;
+  if (f === "late" && !isLate(o)) return false;
   if (f === "done" && o.status !== "done") return false;
   if (q){ const hay = (o.no+" "+(o.denom||"")+" "+stagesOf(o).map(s=>s.machine+" خط"+s.line).join(" ")).toLowerCase(); if (!hay.includes(q)) return false; }
   return true;
  }).sort((a,b) => String(b.created||"").localeCompare(String(a.created||"")));
- if (!list.length){ box.innerHTML = `<div class="empty">لا توجد أوامر مطابقة${readOnly ? "" : " — اضغط «أمر إنتاج جديد» للبدء"}.</div>`; return; }
+ if (!list.length){ box.innerHTML = `<div class="empty">لا توجد أوامر مطابقة${can("orderNew") ? " — اضغط «أمر إنتاج جديد» للبدء" : ""}.</div>`; return; }
  box.innerHTML = list.map(o => {
   const pl = ordPlace(o), c = curStage(o), t = ordTotals(o), target = num(o.target);
   const pct = target > 0 ? Math.min(100, Math.round(t.out / target * 100)) : 0;
@@ -369,16 +461,26 @@ function renderOrders(){
     `<span class="tag ext">📍 الآن على خط ${esc(c.line)}${c.machine?" – "+esc(c.machine):""}</span>`;
   const first = stg[0];
   const incoming = first && String(first.line) !== "3" ? `<span class="tag ext">↩ بدأ على خط ${esc(first.line)}</span>` : "";
-  const acts = readOnly ? "" : `<div class="acts noprint" style="justify-content:flex-start">` + (o.status === "done"
-    ? `<button class="btn gray sm" onclick="reopen('${o.id}')">إعادة فتح</button>`
-    : `<button class="btn sm" onclick="openUpdate('${o.id}')">✏️ تحديث المرحلة الحالية</button><button class="btn org sm" onclick="openTransfer('${o.id}')">➡️ نقل لمرحلة/خط آخر</button>`) +
-    `<button class="btn red sm" onclick="delOrder('${o.id}')">🗑️ حذف</button></div>`;
+  const dueTag = o.due ? `<span class="tag ${isLate(o)?"late":""}">${isLate(o)?"⏰ متأخر — ":"📅 الموعد: "}${esc(o.due)}</span>` : "";
+  let acts = "";
+  if (me){
+   const b = [];
+   if (o.status === "done"){ if (can("orderMove")) b.push(`<button class="btn gray sm" onclick="reopen('${o.id}')">إعادة فتح</button>`); }
+   else {
+    if (can("stage")) b.push(`<button class="btn sm" onclick="openUpdate('${o.id}')">✏️ تحديث المرحلة الحالية</button>`);
+    if (can("orderMove")) b.push(`<button class="btn org sm" onclick="openTransfer('${o.id}')">➡️ نقل لمرحلة/خط آخر</button>`);
+   }
+   if (can("orderEdit")) b.push(`<button class="btn gray sm" onclick="openEdit('${o.id}')">⚙️ تعديل بيانات الأمر</button>`);
+   if (can("orderDel")) b.push(`<button class="btn red sm" onclick="delOrder('${o.id}')">🗑️ حذف</button>`);
+   if (b.length) acts = `<div class="acts noprint" style="justify-content:flex-start">${b.join("")}</div>`;
+  }
   return `<div class="oc ${pl}">
-   <div class="ohd"><b>أمر ${esc(o.no)}</b>${o.denom?`<span class="tag">${esc(o.denom)}</span>`:""}${target?`<span class="tag">الهدف: ${fmt(target)}</span>`:""}${placeTag}${incoming}</div>
+   <div class="ohd"><b>أمر ${esc(o.no)}</b>${o.denom?`<span class="tag">${esc(o.denom)}</span>`:""}${target?`<span class="tag">الهدف: ${fmt(target)}</span>`:""}${placeTag}${incoming}${dueTag}</div>
    <div class="pipe">${chips}</div>
    ${target ? `<div class="bar" title="${pct}%"><i style="width:${pct}%"></i></div>` : ""}
    <div class="meta"><span>المنتَج حتى الآن: <b>${fmt(t.out)}</b>${target?` (${pct}%)`:""}</span><span>الهالك: <b>${fmt(t.waste)}</b></span>${yld!==null?`<span>نسبة الصلاحية: <b>${yld}%</b></span>`:""}<span>عدد المراحل: <b>${t.stages}</b></span></div>
    ${o.note?`<div class="meta">📝 ${esc(o.note)}</div>`:""}
+   ${o.createdBy?`<div class="meta">أُنشئ بواسطة: <b>${esc(o.createdBy)}</b> · ${fdt(o.created)}</div>`:""}
    ${acts}</div>`;
  }).join("");
 }
@@ -388,19 +490,19 @@ const fld = (l, inner) => `<label>${l}${inner}</label>`;
 const lineSel = (id, sel, extra) => `<select id="${id}">${[1,2,3,4].map(n => `<option value="${n}"${String(sel)===String(n)?" selected":""}>خط ${n}${n===3?" (هذا الخط)":""}</option>`).join("")}${extra||""}</select>`;
 function openModal(html){ $("oBox").innerHTML = html; $("oModal").classList.add("open"); }
 function closeModal(){ $("oModal").classList.remove("open"); }
-function machInput(id, lineId, val){
- return `<input id="${id}" value="${esc(val||"")}" list="m3list" placeholder="اسم الماكينة" autocomplete="off">`;
-}
+function machInput(id, lineId, val){ return `<input id="${id}" value="${esc(val||"")}" list="m3list" placeholder="اسم الماكينة" autocomplete="off">`; }
 function syncMachList(lineId, inputId){
  const ln = $(lineId).value, inp = $(inputId);
  if (ln === "3") inp.setAttribute("list","m3list"); else inp.removeAttribute("list");
 }
 
 function openNew(){
+ if (!can("orderNew")) return;
  openModal(`<h3>➕ أمر إنتاج جديد</h3>
   <div class="two">${fld("رقم الأمر",`<input id="f_no" placeholder="مثال 6005/9">`)}${fld("الفئة",`<input id="f_den" list="denList" placeholder="10 جنيه مصري">`)}</div>
-  <div class="two">${fld("الكمية المستهدفة",`<input id="f_tg" inputmode="numeric">`)}${fld("حالة المرحلة الأولى",`<select id="f_st"><option value="waiting">بالانتظار</option><option value="running">قيد التشغيل</option></select>`)}</div>
+  <div class="two">${fld("الكمية المستهدفة",`<input id="f_tg" inputmode="numeric">`)}${fld("موعد التسليم (اختياري)",`<input id="f_due" type="date">`)}</div>
   <div class="two">${fld("المرحلة الأولى على",lineSel("f_ln",3))}${fld("الماكينة",machInput("f_mc","f_ln"))}</div>
+  ${fld("حالة المرحلة الأولى",`<select id="f_st"><option value="waiting">بالانتظار</option><option value="running">قيد التشغيل</option></select>`)}
   ${fld("ملاحظات",`<input id="f_nt">`)}
   <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn green" onclick="saveNew()">حفظ</button></div>`);
  $("f_ln").addEventListener("change", () => syncMachList("f_ln","f_mc"));
@@ -409,11 +511,24 @@ function saveNew(){
  const no = $("f_no").value.trim(); if (!no){ alert("أدخل رقم الأمر"); return; }
  if (ordersArr().some(o => o.no === no && o.status !== "done") && !confirm("يوجد أمر نشط بنفس الرقم. هل تريد المتابعة؟")) return;
  const id = "o" + Date.now().toString(36), now = new Date().toISOString(), st = $("f_st").value;
- const o = {no, denom:$("f_den").value.trim(), target:$("f_tg").value.trim(), created:now, status:"active", note:$("f_nt").value.trim(),
+ const o = {no, denom:$("f_den").value.trim(), target:$("f_tg").value.trim(), due:$("f_due").value, created:now, createdBy:me.name, status:"active", note:$("f_nt").value.trim(),
   stages:{s01:{line:$("f_ln").value, machine:$("f_mc").value.trim(), state:st, qin:"", qout:"", waste:"", start: st==="running"?now:"", end:"", note:""}}};
  S.orders[id] = o; queue({orders:{[id]:o}});
  addLog(`أمر جديد ${no} (${o.denom||"—"}) — بدأ على خط ${o.stages.s01.line}${o.stages.s01.machine?" / "+o.stages.s01.machine:""}`);
  closeModal(); paint();
+}
+function openEdit(id){
+ const o = S.orders[id]; if (!o || !can("orderEdit")) return;
+ openModal(`<h3>⚙️ تعديل بيانات الأمر ${esc(o.no)}</h3>
+  <div class="two">${fld("رقم الأمر",`<input id="e_no" value="${esc(o.no)}">`)}${fld("الفئة",`<input id="e_den" list="denList" value="${esc(o.denom)}">`)}</div>
+  <div class="two">${fld("الكمية المستهدفة",`<input id="e_tg" inputmode="numeric" value="${esc(o.target)}">`)}${fld("موعد التسليم",`<input id="e_due" type="date" value="${esc(o.due)}">`)}</div>
+  ${fld("ملاحظات",`<input id="e_nt" value="${esc(o.note)}">`)}
+  <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn green" onclick="saveEdit('${id}')">حفظ</button></div>`);
+}
+function saveEdit(id){
+ const o = S.orders[id], no = $("e_no").value.trim(); if (!no){ alert("أدخل رقم الأمر"); return; }
+ const p = {no, denom:$("e_den").value.trim(), target:$("e_tg").value.trim(), due:$("e_due").value, note:$("e_nt").value.trim()};
+ Object.assign(o, p); queue({orders:{[id]:p}}); addLog(`تعديل بيانات أمر ${no}`); closeModal(); paint();
 }
 function openUpdate(id){
  const o = S.orders[id], c = curStage(o); if (!c) return;
@@ -467,9 +582,29 @@ function delOrder(id){
  S.orders[id] = null; queue({orders:{[id]:null}}); addLog(`حذف أمر ${o.no}`); paint();
 }
 
+/* ---------- إغلاق اليوم ---------- */
+function closeDay(){
+ if (!can("closeDay")) return;
+ if (!confirm("سيتم أرشفة إنتاج اليوم وحضور الورديات، ثم تصفير خانات (الإنتاج اليومي و12/3/5/8) لبدء يوم جديد.\nهل تريد المتابعة؟")) return;
+ const td = todayKey(), now = new Date().toISOString();
+ const snap = {prod:{}, att:Object.assign({}, S.att), by:me.name, at:now};
+ const patch = {days:{[td]:snap}, history:{[td]:{}}, prod:{}};
+ S.history = S.history || {}; S.history[td] = S.history[td] || {};
+ Object.keys(S.prod).forEach(k => {
+  const r = S.prod[k], mk = safeKey(r.machine);
+  snap.prod[k] = {machine:r.machine, order:r.order||"", daily:r.daily||"", t12:r.t12||"", t3:r.t3||"", t5:r.t5||"", t8:r.t8||"", total:r.total||""};
+  S.history[td][mk] = num(r.daily); patch.history[td][mk] = num(r.daily);
+  const z = {daily:"-", t12:"-", t3:"-", t5:"-", t8:"-"};
+  Object.assign(r, z); patch.prod[k] = z;
+ });
+ S.days = S.days || {}; S.days[td] = snap;
+ queue(patch); addLog(`إغلاق يوم ${td} وأرشفة الإنتاج والحضور`); paint();
+ toast("✔ تم إغلاق اليوم وأرشفة البيانات");
+}
+
 /* ---------- سجل الأحداث ---------- */
 function addLog(m){
- const key = "l" + Date.now(), e = {t:new Date().toISOString(), m};
+ const key = "l" + Date.now(), e = {t:new Date().toISOString(), m, u: me ? me.name : ""};
  S.log = S.log || {}; S.log[key] = e; const p = {log:{[key]:e}};
  const keys = Object.keys(S.log).filter(x => S.log[x]).sort();
  while (keys.length > 60){ const old = keys.shift(); S.log[old] = null; p.log[old] = null; }
@@ -477,21 +612,34 @@ function addLog(m){
 }
 function renderLog(){
  const keys = Object.keys(S.log||{}).filter(k => S.log[k]).sort().reverse().slice(0,60);
- $("log").innerHTML = keys.length ? keys.map(k => `<div><span>${esc(S.log[k].m)}</span><small>${new Date(S.log[k].t).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"})}</small></div>`).join("") : `<div class="empty" style="padding:10px">لا توجد أحداث بعد.</div>`;
+ $("log").innerHTML = keys.length ? keys.map(k => { const e = S.log[k]; return `<div><span>${esc(e.m)}${e.u?` <b>— ${esc(e.u)}</b>`:""}</span><small>${fdt(e.t)}</small></div>`; }).join("") : `<div class="empty" style="padding:10px">لا توجد أحداث بعد.</div>`;
 }
 
 /* ---------- تنبيهات ---------- */
 function isStopped(r){ const t = String(r.total||"").trim(), n = String(r.notes||""); return t === "توقف" || n.includes("توقف") || n.includes("عطل"); }
+function parseDM(s){
+ const m = String(s||"").trim().match(/^(\d{1,2})[-\/](\d{1,2})$/); if (!m) return null;
+ return new Date(new Date().getFullYear(), +m[2]-1, +m[1]);
+}
 function renderAlerts(){
  const a = [];
  const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine);
  if (stopped.length) a.push(`<div class="alert bad">⛔ ماكينات متوقفة: ${stopped.map(esc).join("، ")}</div>`);
+ const late = ordersArr().filter(isLate);
+ if (late.length) a.push(`<div class="alert bad">⏰ أوامر متأخرة عن موعد التسليم: ${late.map(o => esc(o.no)+" ("+esc(o.due)+")").join("، ")}</div>`);
  ordersArr().filter(o => o.status !== "done").forEach(o => stagesOf(o).forEach(s => {
   const i = num(s.qin) || num(s.qout) + num(s.waste), w = num(s.waste);
   if (i > 0 && w / i > 0.03) a.push(`<div class="alert warn">⚠️ هالك مرتفع (${(w/i*100).toFixed(1)}%) — أمر ${esc(o.no)} على خط ${esc(s.line)} ${esc(s.machine||"")}</div>`);
  }));
- const m = Object.values(S.maint).filter(x => !x.wStat).map(x => x.machine);
- if (m.length) a.push(`<div class="alert warn">🛠️ صيانة أسبوعية لم تتم: ${m.map(esc).join("، ")}</div>`);
+ const t0 = new Date(); t0.setHours(0,0,0,0);
+ const over = [], soon = [];
+ Object.values(S.maint).forEach(x => [["wDate","wStat","أسبوعية"],["mDate","mStat","شهرية"]].forEach(([d,st,l]) => {
+  if (x[st]) return; const dt = parseDM(x[d]); if (!dt) return;
+  const diff = Math.round((dt - t0) / 864e5), txt = `${esc(x.machine)} (${l} ${esc(x[d])})`;
+  if (diff < 0) over.push(txt); else if (diff <= 2) soon.push(txt);
+ }));
+ if (over.length) a.push(`<div class="alert bad">🛠️ صيانة متأخرة: ${over.join("، ")}</div>`);
+ if (soon.length) a.push(`<div class="alert warn">🛠️ صيانة مستحقة خلال يومين: ${soon.join("، ")}</div>`);
  $("alerts").innerHTML = a.join("");
 }
 
@@ -504,7 +652,6 @@ function stats(){
  $("st-prod").textContent = fmt(sum);
  $("st-act").textContent = active + " / " + rows.length;
  $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد";
- // مقارنة بآخر يوم مسجل
  const tk = todayKey(), prev = Object.keys(S.history||{}).filter(d => d < tk).sort().pop();
  let dl = "";
  if (prev){ const ps = Object.values(S.history[prev]).reduce((s,v) => s+num(v), 0), df = sum - ps; dl = `${df>=0?"▲":"▼"} ${fmt(Math.abs(df))} عن ${prev}`; }
@@ -516,23 +663,22 @@ function stats(){
  const full = allm > 0 && done === allm;
  el.textContent = (full ? "مكتملة" : "قيد التنفيذ") + ` (${done}/${allm})`;
  el.style.color = full ? "var(--ok)" : "var(--warn)";
- $("st-upd").textContent = "آخر تحديث: " + (S.updatedAt ? new Date(S.updatedAt).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}) : "—");
+ $("st-upd").textContent = "آخر تحديث: " + fdt(S.updatedAt) + (S.updatedBy ? " — " + S.updatedBy : "");
 }
 
 function onEdit(e){
  const el = e.target, g = el.dataset.g, f = el.dataset.f, k = el.dataset.k;
- if (g === "att"){ S.att[f] = el.value; queue({att:{[f]:el.value}}); }
+ if (g === "att"){ if (!can("att")) return; S.att[f] = el.value; queue({att:{[f]:el.value}}); }
  else {
+  if (!can(g === "maint" ? "maint" : "prod")) return;
   S[g][k][f] = el.value;
   queue({[g]:{[k]:{[f]:el.value}}});
-  // الأرشيف التاريخي: الإنتاج اليومي فقط (وبتاريخ محلي صحيح)
   if (g === "prod" && f === "daily"){
    const td = todayKey(), mk = safeKey(S.prod[k].machine);
    S.history = S.history || {}; S.history[td] = S.history[td] || {};
    S.history[td][mk] = num(el.value);
    queue({history:{[td]:{[mk]:num(el.value)}}});
   }
-  // ربط رقم الأمر بجدول الأوامر: تعبئة الفئة تلقائياً
   if (g === "prod" && f === "order"){
    const o = ordersArr().find(x => x.no === el.value.trim());
    if (o && o.denom && S.prod[k].denom !== o.denom){ S.prod[k].denom = o.denom; queue({prod:{[k]:{denom:o.denom}}}); paint(); }
@@ -541,6 +687,7 @@ function onEdit(e){
  stats(); updateCharts(); renderAlerts();
 }
 function onToggle(e){
+ if (!can("maint")) return;
  const b = e.currentTarget, k = b.dataset.k, f = b.dataset.f;
  S.maint[k][f] = !S.maint[k][f];
  queue({maint:{[k]:{[f]:S.maint[k][f]}}});
@@ -548,9 +695,9 @@ function onToggle(e){
  paint();
 }
 function onHandover(e){
- if (readOnly) return;
- S.handover = e.target.value; S.handoverAt = new Date().toISOString();
- queue({handover:S.handover, handoverAt:S.handoverAt});
+ if (!can("handover")) return;
+ S.handover = e.target.value; S.handoverAt = new Date().toISOString(); S.handoverBy = me.name;
+ queue({handover:S.handover, handoverAt:S.handoverAt, handoverBy:me.name});
 }
 
 /* ---------- الرسوم البيانية ---------- */
@@ -560,14 +707,14 @@ function initCharts(){
 }
 function updateCharts(){
  if(!prodChart) return;
- const mode = $("chartViewMode").value, history = S.history || {}, dates = Object.keys(history).sort();
+ const mode = $("chartViewMode").value, history = S.history || {}, all = Object.keys(history).sort();
  if (mode === 'daily'){
-  const colors = ['#2563eb','#16a34a','#f59e0b','#9333ea','#db2777'];
+  const dates = all.slice(-30), colors = ['#2563eb','#16a34a','#f59e0b','#9333ea','#db2777'];
   prodChart.data.labels = dates;
   prodChart.data.datasets = Object.values(S.prod).map((p, idx) => ({label:p.machine, data:dates.map(d => (history[d] && history[d][safeKey(p.machine)]) || 0), backgroundColor:colors[idx % colors.length]}));
  } else {
   const md = {};
-  dates.forEach(d => { const mk = d.substring(0,7); md[mk] = (md[mk]||0) + Object.values(history[d]).reduce((s,v) => s+num(v), 0); });
+  all.forEach(d => { const mk = d.substring(0,7); md[mk] = (md[mk]||0) + Object.values(history[d]).reduce((s,v) => s+num(v), 0); });
   const ml = Object.keys(md).sort();
   prodChart.data.labels = ml;
   prodChart.data.datasets = [{label:'إجمالي الإنتاج الشهري', data:ml.map(m => md[m]), backgroundColor:'#1F4E79'}];
@@ -578,28 +725,34 @@ function updateCharts(){
 /* ---------- تصدير وطباعة ---------- */
 function exportCSV(){
  const q = v => '"' + String(v == null ? "" : v).replace(/"/g,'""') + '"', rows = [];
- rows.push(["تقرير خط الإنتاج 3 - " + new Date().toLocaleString("ar-EG")]);
+ rows.push(["تقرير خط الإنتاج 3 - " + new Date().toLocaleString("ar-EG") + (me ? " - " + me.name : "")]);
  rows.push([]); rows.push(["جدول الماكينات"]);
  rows.push(["الماكينة","أمر الإنتاج","الفئة","الإنتاج اليومي","12 PM","3 PM","5 PM","8 PM","الإجمالي","ملاحظات"]);
  Object.values(S.prod).forEach(r => rows.push([r.machine,r.order,r.denom,r.daily,r.t12,r.t3,r.t5,r.t8,r.total,r.notes]));
  rows.push([]); rows.push(["تتبع الأوامر"]);
- rows.push(["رقم الأمر","الفئة","الهدف","حالة الأمر","المرحلة","الخط","الماكينة","حالة المرحلة","الوارد","المنتَج","الهالك","البداية","النهاية","ملاحظات"]);
- ordersArr().forEach(o => stagesOf(o).forEach((s,i) => rows.push([o.no,o.denom,o.target,o.status==="done"?"منتهي":"نشط",i+1,s.line,s.machine,STATE_L[s.state],s.qin,s.qout,s.waste,s.start,s.end,s.note])));
+ rows.push(["رقم الأمر","الفئة","الهدف","موعد التسليم","حالة الأمر","المرحلة","الخط","الماكينة","حالة المرحلة","الوارد","المنتَج","الهالك","البداية","النهاية","ملاحظات"]);
+ ordersArr().forEach(o => stagesOf(o).forEach((s,i) => rows.push([o.no,o.denom,o.target,o.due,o.status==="done"?"منتهي":"نشط",i+1,s.line,s.machine,STATE_L[s.state],s.qin,s.qout,s.waste,s.start,s.end,s.note])));
  rows.push([]); rows.push(["الإنتاج اليومي المؤرشف"]);
  const mach = Object.values(S.prod).map(p => p.machine);
  rows.push(["التاريخ", ...mach]);
  Object.keys(S.history||{}).sort().forEach(d => rows.push([d, ...mach.map(m => S.history[d][safeKey(m)] || 0)]));
+ rows.push([]); rows.push(["أرشيف الحضور (عند إغلاق اليوم)"]);
+ rows.push(["التاريخ","وردية 1","وردية 2","وردية 3","غياب","إجازات","إشراف","أُغلق بواسطة"]);
+ Object.keys(S.days||{}).sort().forEach(d => { const x = S.days[d], a = x.att || {}; rows.push([d,a.s1,a.s2,a.s3,a.abs,a.exc,a.sup,x.by]); });
  const blob = new Blob(["\uFEFF" + rows.map(r => r.map(q).join(",")).join("\r\n")], {type:"text/csv;charset=utf-8"});
  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "line3-report-" + todayKey() + ".csv";
  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
-function printReport(){ window.print(); }
+function printReport(){
+ $("printBy").textContent = "أُعدّ التقرير في: " + new Date().toLocaleString("ar-EG") + (me ? " — بواسطة: " + me.name : "");
+ window.print();
+}
 function printQR(){ document.body.classList.add("pq"); window.print(); setTimeout(() => document.body.classList.remove("pq"), 500); }
 
 /* ---------- المزامنة (Firebase) ---------- */
 function merge(t, s){ for (const k in s){ if (s[k] && typeof s[k]==="object") merge(t[k] = t[k] || {}, s[k]); else t[k] = s[k]; } return t; }
 function queue(p){
- if (readOnly) return;
+ if (!me) return;
  merge(pending, p); setStatus("busy","💾 جاري الحفظ…");
  clearTimeout(timer); timer = setTimeout(flush, 600);
 }
@@ -607,14 +760,29 @@ const DB_URL = "https://cbeline3-default-rtdb.firebaseio.com";
 const NODE = DB_URL + "/line3";
 function flat(o, p = "", out = {}){ for (const k in o){ const v = o[k], pp = p ? p + "/" + k : k; if (v && typeof v === "object") flat(v, pp, out); else out[pp] = v; } return out; }
 
+/* ---------- الحسابات (Firebase Auth) ---------- */
 const API_KEY = "AIzaSyDY-W6cLL_vYAy_nuU9xJujjn5llyPyHY4";
-const EDITOR_EMAIL = "editor@line3.app";
+const DOMAIN = "@line3.app";
+const EDITOR_EMAIL = "editor" + DOMAIN;   // الحساب الأصلي القديم = مدير النظام
 let tok = null;
-function saveTok(){ try { tok ? localStorage.setItem("l3tok", JSON.stringify(tok)) : localStorage.removeItem("l3tok"); } catch(e){} }
-function setTok(j){ tok = {id:j.idToken || j.id_token, refresh:j.refreshToken || j.refresh_token, exp:Date.now() + (parseInt(j.expiresIn || j.expires_in, 10) || 3600)*1000 - 60000}; saveTok(); }
-async function login(pw){
- const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:EDITOR_EMAIL, password:pw, returnSecureToken:true})});
- if (!r.ok) throw new Error("bad"); setTok(await r.json());
+const UNAME_RE = /^[a-z0-9._-]{3,24}$/;
+const isEditor = email => String(email||"").toLowerCase() === EDITOR_EMAIL;
+function saveTok(){ try { if (tok) localStorage.setItem("l3tok", JSON.stringify(tok)); else { localStorage.removeItem("l3tok"); localStorage.removeItem("l3me"); } } catch(e){} }
+function saveMe(){ try { me ? localStorage.setItem("l3me", JSON.stringify(me)) : localStorage.removeItem("l3me"); } catch(e){} }
+function setTok(j){
+ tok = {id:j.idToken || j.id_token, refresh:j.refreshToken || j.refresh_token,
+  uid:j.localId || j.user_id || (tok && tok.uid) || "",
+  email:(j.email || (tok && tok.email) || EDITOR_EMAIL).toLowerCase(),
+  exp:Date.now() + (parseInt(j.expiresIn || j.expires_in, 10) || 3600)*1000 - 60000};
+ saveTok();
+}
+function authErr(j){ return String(j && j.error && j.error.message || ""); }
+async function login(user, pw){
+ const u = String(user||"").trim().toLowerCase();
+ if (!UNAME_RE.test(u)) throw new Error("bad");
+ const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:u + DOMAIN, password:pw, returnSecureToken:true})});
+ if (!r.ok){ const m = authErr(await r.json().catch(() => ({}))); throw new Error(m.includes("TOO_MANY") ? "many" : "bad"); }
+ setTok(await r.json());
 }
 async function getToken(){
  if (!tok) throw new Error("no");
@@ -624,20 +792,183 @@ async function getToken(){
  }
  return tok.id;
 }
-function okStatus(){ setStatus(readOnly ? "warn" : "", readOnly ? "👁️ عرض فقط — يتحدث تلقائياً" : "☁️ متصل ومحدَّث لحظياً"); }
-function applyAuth(){ readOnly = !tok; $("authBtn").textContent = tok ? "🔓 خروج" : "🔒 دخول للتعديل"; okStatus(); paint(); }
-function authClick(){ if (tok){ tok = null; saveTok(); pending = {}; applyAuth(); } else { $("pwErr").textContent = ""; $("pw").value = ""; $("pwModal").classList.add("open"); $("pw").focus(); } }
+/* يجلب ملف المستخدم (الاسم العربي والدور). يُنشئ ملف المدير تلقائياً للحساب الأصلي. */
+async function loadProfile(fresh){
+ const t = await getToken(), uid = tok.uid, url = DB_URL + "/users/" + uid + ".json?auth=" + encodeURIComponent(t);
+ const r = await fetch(url);
+ let p = null;
+ if (r.ok) p = await r.json();
+ else if (!(isEditor(tok.email) && (r.status === 401 || r.status === 403))) throw new Error(r.status);
+ if (!p){
+  if (!isEditor(tok.email)) return null;
+  p = {name:"مدير النظام", username:"editor", role:"admin", active:true, created:new Date().toISOString()};
+  try { await fetch(url, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(p)}); } catch(e){}
+ }
+ if (p.active === false) return "disabled";
+ const prev = p.lastLogin || "";
+ const username = p.username || tok.email.replace(DOMAIN,"");
+ me = {uid, username, name:p.name || username, role: isEditor(tok.email) ? "admin" : (ROLE_L[p.role] ? p.role : "operator")};
+ saveMe();
+ if (fresh){ try { fetch(DB_URL + "/users/" + uid + "/lastLogin.json?auth=" + encodeURIComponent(t), {method:"PUT", body:JSON.stringify(new Date().toISOString())}); } catch(e){} }
+ return {prev};
+}
+function okStatus(){ setStatus(me ? "" : "warn", me ? "☁️ متصل ومحدَّث لحظياً" : "👁️ عرض فقط — يتحدث تلقائياً"); }
+function applyAuth(){
+ readOnly = !me;
+ $("authBtn").textContent = me ? "🔓 خروج" : "🔒 تسجيل الدخول";
+ $("userChip").style.display = me ? "" : "none";
+ if (me){ $("uName").textContent = "👤 " + me.name; $("uRole").textContent = ROLE_L[me.role]; }
+ $("usersBtn").style.display = can("users") ? "" : "none";
+ $("pwBtn").style.display = me ? "" : "none";
+ okStatus(); paint();
+}
+function logout(msg){
+ tok = null; me = null; saveTok(); pending = {}; applyAuth();
+ if (msg) setStatus("warn", msg);
+}
+function authClick(){
+ if (me){ if (confirm("تسجيل الخروج؟")) logout(); }
+ else { $("pwErr").textContent = ""; $("pw").value = ""; $("pwModal").classList.add("open"); $("lu").focus(); }
+}
 function closePw(){ $("pwModal").classList.remove("open"); }
-async function doLogin(){ try { await login($("pw").value); closePw(); applyAuth(); } catch(e){ $("pwErr").textContent = "كلمة السر غير صحيحة"; } }
-function sessionEnded(){ tok = null; saveTok(); pending = {}; applyAuth(); setStatus("warn", "🔒 انتهت الجلسة — سجّل الدخول مجدداً للتعديل"); }
-document.addEventListener("keydown", e => { if (e.key === "Enter" && $("pwModal").classList.contains("open")) doLogin(); if (e.key === "Escape") closeModal(); });
+async function doLogin(){
+ const btn = $("loginBtn"), err = $("pwErr"); err.textContent = "";
+ const u = $("lu").value.trim();
+ if (!u || !$("pw").value){ err.textContent = "أدخل اسم المستخدم وكلمة السر"; return; }
+ btn.disabled = true;
+ try {
+  await login(u, $("pw").value);
+  const res = await loadProfile(true);
+  if (res === "disabled"){ logout(); err.textContent = "هذا الحساب معطّل — راجع مدير النظام"; return; }
+  if (!res){ logout(); err.textContent = "الحساب غير مُفعّل في النظام — راجع مدير النظام"; return; }
+  closePw(); $("pw").value = ""; applyAuth(); showWelcome(res.prev); touch();
+ } catch(e){
+  logout();
+  err.textContent = e.message === "many" ? "محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة" : (e.message === "bad" ? "اسم المستخدم أو كلمة السر غير صحيحة" : "تعذر الاتصال — تحقق من الإنترنت");
+ } finally { btn.disabled = false; }
+}
+function sessionEnded(){ logout("🔒 انتهت الجلسة — سجّل الدخول مجدداً للتعديل"); }
+document.addEventListener("keydown", e => {
+ if (e.key === "Enter" && $("pwModal").classList.contains("open")) doLogin();
+ if (e.key === "Escape"){ closeModal(); closePw(); }
+});
+
+/* ---------- رسالة الترحيب ---------- */
+function toast(m){ const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 3500); }
+function greet(){ const h = new Date().getHours(); return h < 12 ? "صباح الخير" : "مساء الخير"; }
+function showWelcome(prev){
+ const h = new Date().getHours();
+ $("welIc").textContent = h < 12 ? "🌅" : (h < 18 ? "☀️" : "🌙");
+ $("welH").textContent = greet() + "، مرحباً بك يا " + me.name;
+ $("welSub").textContent = "تم تسجيل دخولك بصفة: " + ROLE_L[me.role] + (prev ? " · آخر دخول سابق: " + fdt(prev) : " · أول دخول لك");
+ const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine);
+ const act = ordersArr().filter(o => o.status !== "done"), late = ordersArr().filter(isLate);
+ const l = [];
+ l.push(stopped.length ? `<div class="bad">⛔ ماكينات متوقفة (${stopped.length}): ${stopped.map(esc).join("، ")}</div>` : `<div class="ok">✅ جميع ماكينات الخط تعمل</div>`);
+ l.push(`<div>📦 أوامر نشطة: <b>${act.length}</b>${late.length ? ` · <span style="color:var(--bad)">متأخرة: ${late.length}</span>` : ""}</div>`);
+ if (S.handover && S.handover.trim()) l.push(`<div>📝 ملاحظة التسليم${S.handoverBy ? " (" + esc(S.handoverBy) + ")" : ""}: ${esc(S.handover.trim().slice(0,160))}${S.handover.trim().length > 160 ? "…" : ""}</div>`);
+ $("welL").innerHTML = l.join("");
+ $("wModal").classList.add("open");
+}
+function closeWel(){ $("wModal").classList.remove("open"); }
+
+/* ---------- تغيير كلمة السر ---------- */
+function openPwChange(){ $("cp1").value = ""; $("cp2").value = ""; $("cpMsg").textContent = ""; $("cpModal").classList.add("open"); $("cp1").focus(); }
+function closePwChange(){ $("cpModal").classList.remove("open"); }
+async function doPwChange(){
+ const a = $("cp1").value, b = $("cp2").value, m = $("cpMsg"); m.style.color = "var(--bad)";
+ if (a.length < 6){ m.textContent = "كلمة السر لا تقل عن 6 أحرف"; return; }
+ if (a !== b){ m.textContent = "كلمتا السر غير متطابقتين"; return; }
+ try {
+  const t = await getToken();
+  const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:update?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({idToken:t, password:a, returnSecureToken:true})});
+  const j = await r.json();
+  if (!r.ok){ const e = authErr(j); m.textContent = e.includes("CREDENTIAL_TOO_OLD") ? "لأسباب أمنية: سجّل الخروج ثم الدخول وأعد المحاولة" : (e.includes("WEAK") ? "كلمة السر ضعيفة" : "تعذر التغيير"); return; }
+  setTok(j); closePwChange(); toast("✔ تم تغيير كلمة السر");
+ } catch(e){ m.textContent = "تعذر الاتصال"; }
+}
+
+/* ---------- إدارة المستخدمين (للمدير فقط) ---------- */
+let USERS = {};
+function openUsers(){ if (!can("users")) return; $("nu_msg").textContent = ""; $("uModal").classList.add("open"); loadUsers(); }
+function closeUsers(){ $("uModal").classList.remove("open"); }
+async function loadUsers(){
+ const box = $("uList"); box.innerHTML = `<tr><td colspan="6" class="empty">جاري التحميل…</td></tr>`;
+ try {
+  const t = await getToken(), r = await fetch(DB_URL + "/users.json?auth=" + encodeURIComponent(t));
+  if (!r.ok) throw new Error(r.status);
+  USERS = (await r.json()) || {}; renderUsers();
+ } catch(e){ box.innerHTML = `<tr><td colspan="6" class="empty">تعذر تحميل المستخدمين — تأكد من تطبيق قواعد الأمان (ملف firebase-rules.json)</td></tr>`; }
+}
+function renderUsers(){
+ const ids = Object.keys(USERS).filter(k => USERS[k]).sort((a,b) => String(USERS[a].created||"").localeCompare(String(USERS[b].created||"")));
+ $("uList").innerHTML = ids.length ? ids.map(id => {
+  const u = USERS[id], self = me && me.uid === id, on = u.active !== false;
+  return `<tr><td><b>${esc(u.name)}</b>${self?' <small>(أنت)</small>':''}</td><td dir="ltr" style="text-align:right">${esc(u.username)}</td>
+   <td><select ${self?"disabled":""} onchange="setRole('${id}',this.value)">${Object.keys(ROLE_L).map(r => `<option value="${r}"${u.role===r?" selected":""}>${ROLE_L[r]}</option>`).join("")}</select></td>
+   <td><span class="ubadge ${on?"on":"off"}">${on?"مفعّل":"معطّل"}</span></td><td>${fdt(u.lastLogin)}</td>
+   <td style="white-space:nowrap"><button class="btn gray sm" onclick="renameUser('${id}')">✏️ الاسم</button> ${self?"":`<button class="btn ${on?"red":"green"} sm" onclick="toggleUser('${id}')">${on?"تعطيل":"تفعيل"}</button>`}</td></tr>`;
+ }).join("") : `<tr><td colspan="6" class="empty">لا يوجد مستخدمون.</td></tr>`;
+}
+async function userPatch(id, patch){
+ const t = await getToken();
+ const r = await fetch(DB_URL + "/users/" + id + ".json?auth=" + encodeURIComponent(t), {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(patch)});
+ if (!r.ok) throw new Error(r.status);
+ Object.assign(USERS[id], patch); renderUsers();
+}
+async function setRole(id, role){ try { await userPatch(id, {role}); addLog(`تغيير دور ${USERS[id].name} إلى ${ROLE_L[role]}`); } catch(e){ alert("تعذر الحفظ"); loadUsers(); } }
+async function toggleUser(id){
+ const u = USERS[id], on = u.active !== false;
+ if (!confirm((on ? "تعطيل" : "تفعيل") + " حساب " + u.name + "؟")) return;
+ try { await userPatch(id, {active:!on}); addLog(`${on?"تعطيل":"تفعيل"} حساب ${u.name}`); } catch(e){ alert("تعذر الحفظ"); }
+}
+const AR_RE = /[\u0600-\u06FF]/, LAT_RE = /[A-Za-z]/;
+async function renameUser(id){
+ const n = prompt("الاسم الظاهر الجديد (بالعربية):", USERS[id].name); if (n == null) return;
+ const v = n.trim(); if (!AR_RE.test(v) || LAT_RE.test(v)){ alert("الاسم يجب أن يكون بالعربية"); return; }
+ try { await userPatch(id, {name:v}); if (me && me.uid === id){ me.name = v; saveMe(); applyAuth(); } } catch(e){ alert("تعذر الحفظ"); }
+}
+async function createUser(){
+ const msg = $("nu_msg"), btn = $("nu_btn"); msg.style.color = "var(--bad)";
+ const name = $("nu_name").value.trim().replace(/\s+/g," "), un = $("nu_user").value.trim().toLowerCase(), pw = $("nu_pw").value, role = $("nu_role").value;
+ if (!AR_RE.test(name) || LAT_RE.test(name)){ msg.textContent = "الاسم الظاهر يجب أن يكون بالعربية فقط"; return; }
+ if (!UNAME_RE.test(un)){ msg.textContent = "اسم المستخدم: 3–24 حرفاً إنجليزياً صغيراً أو أرقاماً أو (. _ -)"; return; }
+ if (pw.length < 6){ msg.textContent = "كلمة السر لا تقل عن 6 أحرف"; return; }
+ if (!ROLE_L[role]){ msg.textContent = "اختر الدور"; return; }
+ btn.disabled = true; msg.textContent = "";
+ try {
+  const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:un + DOMAIN, password:pw, returnSecureToken:false})});
+  const j = await r.json();
+  if (!r.ok){
+   const e = authErr(j);
+   msg.textContent = e.includes("EMAIL_EXISTS") ? "اسم المستخدم مستخدم بالفعل" : e.includes("WEAK") ? "كلمة السر ضعيفة" : e.includes("OPERATION_NOT_ALLOWED") ? "تسجيل الحسابات غير مفعّل: Firebase ← Authentication ← Sign-in method ← Email/Password" : e.includes("TOO_MANY") ? "محاولات كثيرة — انتظر قليلاً" : "تعذر إنشاء الحساب";
+   return;
+  }
+  const t = await getToken();
+  const prof = {name, username:un, role, active:true, created:new Date().toISOString(), createdBy:me.name};
+  const w = await fetch(DB_URL + "/users/" + j.localId + ".json?auth=" + encodeURIComponent(t), {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(prof)});
+  if (!w.ok){ msg.textContent = "أُنشئ الحساب لكن تعذر حفظ ملفه — طبّق قواعد الأمان (firebase-rules.json) ثم احذف الحساب من Firebase وأعد المحاولة"; return; }
+  msg.style.color = "var(--ok)"; msg.textContent = `✔ تم إنشاء ${name} — سلّمه اسم المستخدم (${un}) وكلمة السر`;
+  ["nu_name","nu_user","nu_pw"].forEach(i => $(i).value = "");
+  addLog(`إنشاء مستخدم جديد: ${name} (${ROLE_L[role]})`);
+  loadUsers();
+ } catch(e){ msg.textContent = "تعذر الاتصال"; }
+ finally { btn.disabled = false; }
+}
+
+/* ---------- خروج تلقائي عند عدم النشاط ---------- */
+const IDLE_MS = 30*60*1000; let lastAct = Date.now();
+function touch(){ lastAct = Date.now(); }
+["click","keydown","touchstart","mousemove"].forEach(ev => document.addEventListener(ev, touch, {passive:true}));
+setInterval(() => { if (me && !Object.keys(pending).length && !writing && Date.now() - lastAct > IDLE_MS){ logout("🔒 تم تسجيل الخروج تلقائياً لعدم النشاط"); toast("تم تسجيل الخروج تلقائياً لعدم النشاط"); } }, 30000);
 
 async function flush(){
  if (writing || !Object.keys(pending).length) return;
- if (!tok){ pending = {}; return; }
+ if (!tok || !me){ pending = {}; return; }
  writing = true;
  const patch = pending; pending = {};
  S.updatedAt = new Date().toISOString(); patch.updatedAt = S.updatedAt;
+ S.updatedBy = me.name; patch.updatedBy = me.name;
  try {
   let t; try { t = await getToken(); } catch(e){ writing = false; return sessionEnded(); }
   const r = await fetch(NODE + ".json?auth=" + encodeURIComponent(t), {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(flat(patch))});
@@ -659,7 +990,6 @@ async function pull(){
   const d = await r.json();
   if (d){
    const keep = JSON.parse(JSON.stringify(pending));
-   // الأوامر والسجل: تُستبدل بنسخة السحابة حتى تظهر عمليات الحذف
    S.orders = d.orders || {}; S.log = d.log || {};
    const dd = Object.assign({}, d); delete dd.orders; delete dd.log;
    merge(S, dd); merge(S, keep);
@@ -672,8 +1002,23 @@ let pullTimer = null;
 function pullSoon(){ clearTimeout(pullTimer); pullTimer = setTimeout(pull, 300); }
 
 function connect(){
- try { const t = JSON.parse(localStorage.getItem("l3tok") || "null"); if (t && t.refresh) tok = t; } catch(e){}
+ try {
+  const t = JSON.parse(localStorage.getItem("l3tok") || "null");
+  if (t && t.refresh){
+   tok = t;
+   if (!tok.uid || !tok.email){ tok.exp = 0; tok.email = tok.email || EDITOR_EMAIL; }   // جلسة قديمة: كانت للحساب الأصلي
+   const m = JSON.parse(localStorage.getItem("l3me") || "null"); if (m && m.uid) me = m;
+  }
+ } catch(e){}
  applyAuth();
+ if (tok){
+  loadProfile(false).then(res => {
+   if (res === "disabled" || res === null){ logout("🔒 الحساب غير مفعّل — راجع مدير النظام"); return; }
+   applyAuth();
+   let shown = false; try { shown = sessionStorage.getItem("l3w"); sessionStorage.setItem("l3w","1"); } catch(e){}
+   if (!shown) toast(greet() + "، مرحباً بعودتك يا " + me.name + " 👋");
+  }).catch(() => { if (!me) logout(); });
+ }
  pull();
  try { const es = new EventSource(NODE + ".json"); es.addEventListener("put", pullSoon); es.addEventListener("patch", pullSoon); } catch (e) {}
  setInterval(pull, 15000);
