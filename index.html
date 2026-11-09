@@ -2,10 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://cbeline3-default-rtdb.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>لوحة متابعة خط الإنتاج 3 - البنك المركزي المصري</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#f1f4f8;--card:#fff;--ink:#1f2937;--mut:#6b7280;--line:#e5e7eb;--soft:#f3f4f6;--inbg:#fff;--inl:#cbd5e1;--head:#0d233a;--blue:#1F4E79;--green:#375623;--dark:#1f2937;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--acc:#1F4E79;--hov:#eef4fb;--ext:#c2410c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1220;--card:#131c2e;--ink:#e5e7eb;--mut:#9ca3af;--line:#243049;--soft:#18233a;--inbg:#0f1726;--inl:#33415c;--blue:#1d4668;--green:#2c4a1c;--dark:#18233a;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--acc:#7ab8ee;--hov:#18233a;--ext:#fb923c}}
@@ -49,6 +51,12 @@ textarea{text-align:right;resize:vertical;min-height:90px}
 input:focus,select:focus,textarea:focus{outline:2px solid rgba(37,99,235,.35);border-color:var(--acc)}
 input[readonly]{cursor:default}
 td input.w{min-width:130px;font-weight:700}td input.n{font-weight:800}td input.notes{text-align:right;font-size:12px;min-width:140px}
+select.ms{min-width:125px;font-weight:700}
+select.ms[data-s="active"]{border-color:#16a34a;color:var(--ok)}
+select.ms[data-s="stopped"]{border-color:var(--bad);color:var(--bad)}
+select.ms[data-s="setup"]{border-color:var(--warn);color:var(--warn)}
+select.ms[data-s="maint"]{border-color:#2563eb;color:var(--acc)}
+select.ms[data-s="broken"]{border-color:var(--bad);background:var(--bad);color:#fff}
 .grid2{display:grid;gap:20px;grid-template-columns:1fr}
 @media(min-width:1024px){.grid2{grid-template-columns:1fr 2fr}}
 .att{padding:14px;display:grid;gap:8px}
@@ -181,7 +189,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
   <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2>
    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span><button class="btn org sm noprint" id="closeDayBtn" style="display:none" onclick="closeDay()">📅 إغلاق اليوم وبدء يوم جديد</button></div></div>
   <div class="scroll"><table>
-   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي (آخر قراءة تراكمية)</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الأمر (≤ الأفرخ)</th><th>ملاحظات / الحالة</th></tr></thead>
+   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي (آخر قراءة تراكمية)</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الأمر (≤ الأفرخ)</th><th>حالة الماكينة</th><th>ملاحظات</th></tr></thead>
    <tbody id="prod"></tbody></table></div>
   <datalist id="ordList"></datalist>
  </section>
@@ -255,6 +263,8 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
  <p>المشاهدة متاحة للجميع. أدخل اسم المستخدم وكلمة السر للتعديل.</p>
  <label>اسم المستخدم (بالإنجليزية)<input id="lu" dir="ltr" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
  <label>كلمة السر<input id="pw" type="password" autocomplete="current-password" aria-label="كلمة السر"></label>
+ <label style="display:flex;flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="lrem" style="width:auto;min-width:0"> تذكرني على هذا الجهاز (لا تفعّلها على جهاز مشترك)</label>
+ <label style="display:flex;flex-direction:row;gap:8px;align-items:center"><input type="checkbox" style="width:auto;min-width:0" onchange="togglePw(['pw'],this.checked)"> إظهار كلمة السر</label>
  <p id="pwErr" style="color:var(--bad)"></p>
  <div class="acts"><button class="btn gray" onclick="closePw()">إلغاء</button><button class="btn" id="loginBtn" onclick="doLogin()">دخول</button></div>
 </div></div>
@@ -271,10 +281,13 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 <!-- تغيير كلمة السر -->
 <div id="cpModal" class="modal"><div class="box form">
  <h3>🔑 تغيير كلمة السر</h3>
- <label>كلمة السر الجديدة (6 أحرف على الأقل)<input id="cp1" type="password" autocomplete="new-password"></label>
+ <label>كلمة السر الحالية<input id="cp0" type="password" autocomplete="current-password"></label>
+ <label>كلمة السر الجديدة (8 أحرف على الأقل، حروف وأرقام)<input id="cp1" type="password" autocomplete="new-password" oninput="pwMeter()"></label>
+ <small id="cpMeter" style="color:var(--mut)"></small>
  <label>تأكيد كلمة السر<input id="cp2" type="password" autocomplete="new-password"></label>
+ <label style="display:flex;flex-direction:row;gap:8px;align-items:center"><input type="checkbox" style="width:auto;min-width:0" onchange="togglePw(['cp0','cp1','cp2'],this.checked)"> إظهار كلمات السر</label>
  <p id="cpMsg"></p>
- <div class="acts"><button class="btn gray" onclick="closePwChange()">إلغاء</button><button class="btn green" onclick="doPwChange()">حفظ</button></div>
+ <div class="acts"><button class="btn gray" onclick="closePwChange()">إلغاء</button><button class="btn green" id="cpBtn" onclick="doPwChange()">حفظ</button></div>
 </div></div>
 
 <!-- إدارة المستخدمين -->
@@ -287,16 +300,16 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <label>اسم المستخدم (إنجليزي)<input id="nu_user" dir="ltr" placeholder="ahmed.m" autocapitalize="none" spellcheck="false"></label>
   </div>
   <div class="two">
-   <label>كلمة السر (6 أحرف على الأقل)<input id="nu_pw" type="text" dir="ltr" autocomplete="off"></label>
+   <label>كلمة السر (8 أحرف على الأقل، حروف وأرقام)<input id="nu_pw" type="text" dir="ltr" autocomplete="off"></label>
    <label>الدور<select id="nu_role"><option value="operator">مشغّل — يدخل بيانات الإنتاج والحضور</option><option value="supervisor">مشرف — يدير الأوامر والصيانة وإغلاق اليوم</option><option value="admin">مدير النظام — كل الصلاحيات</option></select></label>
   </div>
   <p id="nu_msg"></p>
-  <div class="acts"><button class="btn green" id="nu_btn" onclick="createUser()">إنشاء المستخدم</button></div>
+  <div class="acts"><button class="btn gray" onclick="genPw()">🎲 توليد كلمة سر</button><button class="btn green" id="nu_btn" onclick="createUser()">إنشاء المستخدم</button></div>
  </div>
  <div class="scroll"><table class="utbl">
   <thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>الدور</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr></thead>
   <tbody id="uList"></tbody></table></div>
- <p>لإعادة تعيين كلمة سر مستخدم آخر: عطّل حسابه وأنشئ حساباً جديداً، أو استخدم Firebase Console ← Authentication.</p>
+ <p>كل مستخدم يغيّر كلمة سره بنفسه من زر 🔑 (يتطلب إدخال كلمة السر الحالية). لإعادة تعيين كلمة سر مستخدم نسيها: Firebase Console ← Authentication، أو عطّل حسابه وأنشئ حساباً جديداً.</p>
  <div class="acts"><button class="btn gray" onclick="closeUsers()">إغلاق</button></div>
 </div></div>
 
@@ -347,6 +360,7 @@ const DEF = {
  updatedAt: "", updatedBy: ""
 };
 const S = JSON.parse(JSON.stringify(DEF));
+const SAFEID = /^[A-Za-z0-9_-]+$/;
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad = n => String(n).padStart(2,"0");
@@ -362,6 +376,18 @@ const COLS = [["order","w"],["denom","w"],["daily","n"],["t12",""],["t3",""],["t
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
 const STATE_L = {waiting:"بالانتظار", running:"قيد التشغيل", done:"منتهية"};
 const STATE_I = {waiting:"⏳", running:"▶️", done:"✔"};
+/* ---------- حالة الماكينة (اختيارات جاهزة) ---------- */
+const MST = {active:"🟢 نشط", stopped:"🔴 معطل", setup:"🟠 إعداد فئة", maint:"🔧 صيانة", broken:"⛔ عطل تام"};
+const mstName = s => MST[s].replace(/^\S+\s/, "");
+function stOf(r){
+ if (r.status && MST[r.status]) return r.status;
+ const t = String(r.total||"").trim(), n = String(r.notes||"");   // بيانات قديمة بلا حالة محددة
+ if (t === "توقف" || n.includes("توقف")) return "stopped";
+ if (n.includes("عطل")) return "broken";
+ if (t === "إعداد" || n.includes("تجهيز")) return "setup";
+ return "active";
+}
+const statusTd = k => `<td><select class="ms" data-ms="${k}" aria-label="حالة الماكينة">${Object.keys(MST).map(v => `<option value="${v}">${MST[v]}</option>`).join("")}</select></td>`;
 /* ---------- خطوط المطبعة الأربعة وتسلسل المراحل ---------- */
 const LINES = {
  1:["Super Simultan 1","Super Orlof Intaglio 1","Super Orlof Intaglio 2","Nota screen 1","Check Numero Protecta 1"],
@@ -439,7 +465,7 @@ let readOnly = true, pending = {}, timer = null, writing = false, prodChart = nu
 function build(){
  $("prod").innerHTML = Object.keys(S.prod).map(k =>
   `<tr><td class="mn">⚙️ ${esc(S.prod[k].machine)}</td>` +
-  COLS.map(([f,c]) => `<td><input class="${c}" data-g="prod" data-k="${k}" data-f="${f}" autocomplete="off"${f==="order"?' list="ordList"':''}${f==="denom"?' list="denList"':''}></td>`).join("") + `</tr>`).join("");
+  COLS.map(([f,c]) => (f === "notes" ? statusTd(k) : "") + `<td><input class="${c}" data-g="prod" data-k="${k}" data-f="${f}" autocomplete="off"${f==="order"?' list="ordList"':''}${f==="denom"?' list="denList"':''}></td>`).join("") + `</tr>`).join("");
  $("att").innerHTML =
   `<div class="tot"><span>إجمالي الحضور (تلقائي)</span><input id="att-total" readonly></div>` +
   ATT.map(([f,l]) => `<div><span>${l}</span><input inputmode="numeric" data-g="att" data-f="${f}" autocomplete="off"></div>`).join("");
@@ -451,6 +477,7 @@ function build(){
    <td style="text-align:center"><button class="st" data-k="${k}" data-f="mStat"></button></td></tr>`).join("");
  document.querySelectorAll("input[data-g]").forEach(el => el.addEventListener("input", onEdit));
  document.querySelectorAll("button.st").forEach(b => b.addEventListener("click", onToggle));
+ document.querySelectorAll("select.ms").forEach(s => s.addEventListener("change", onStatus));
  $("handover").addEventListener("input", onHandover);
  $("m3list").innerHTML = Object.values(S.prod).map(p => `<option value="${esc(p.machine)}">`).join("");
  initCharts();
@@ -474,6 +501,7 @@ function paint(){
   b.textContent = on ? "✔ تمت" : "قيد الانتظار";
   b.disabled = !can("maint");
  });
+ document.querySelectorAll("select.ms").forEach(s => { const v = stOf(S.prod[s.dataset.ms]); s.disabled = !can("prod"); if (s !== document.activeElement && s.value !== v) s.value = v; s.dataset.s = v; });
  const ho = $("handover");
  if (ho !== document.activeElement && ho.value !== (S.handover||"")) ho.value = S.handover || "";
  ho.readOnly = !can("handover");
@@ -491,8 +519,8 @@ function num(v){
 const fmt = n => Number(n||0).toLocaleString("en-US");
 
 /* ---------- الأوامر ---------- */
-function ordersArr(){ return Object.keys(S.orders||{}).filter(k => S.orders[k]).map(k => Object.assign({id:k}, S.orders[k])); }
-function stagesOf(o){ const st = o.stages || {}; return Object.keys(st).sort().filter(k => st[k]).map(k => Object.assign({k}, st[k])); }
+function ordersArr(){ return Object.keys(S.orders||{}).filter(k => S.orders[k] && SAFEID.test(k)).map(k => Object.assign({id:k}, S.orders[k])); }
+function stagesOf(o){ const st = o.stages || {}; return Object.keys(st).sort().filter(k => st[k] && SAFEID.test(k)).map(k => Object.assign({k}, st[k])); }
 function curStage(o){ const s = stagesOf(o); return s.find(x => x.state !== "done") || s[s.length-1] || null; }
 function ordPlace(o){
  if (o.status === "done") return "fin";
@@ -608,7 +636,7 @@ function saveNew(){
 }
 function openRcv(id){
  const o = S.orders[id]; if (!o || !can("orderMove")) return;
- const rows = Object.keys(o.rcv||{}).filter(k => o.rcv[k]).sort().map(k => `<div class="meta"><span>${esc(o.rcv[k].d)} — <b>${fmt(num(o.rcv[k].q))}</b> فرخ</span>${can("orderEdit") ? `<button class="btn red sm" onclick="delRcv('${id}','${k}')">حذف</button>` : ""}</div>`).join("");
+ const rows = Object.keys(o.rcv||{}).filter(k => o.rcv[k] && SAFEID.test(k)).sort().map(k => `<div class="meta"><span>${esc(o.rcv[k].d)} — <b>${fmt(num(o.rcv[k].q))}</b> فرخ</span>${can("orderEdit") ? `<button class="btn red sm" onclick="delRcv('${id}','${k}')">حذف</button>` : ""}</div>`).join("");
  openModal(`<h3>📥 استلام خام — أمر ${esc(o.no)}</h3><p>المطلوب: ${fmt(num(o.target))} · المستلم حتى الآن: ${fmt(rcvSum(o))}</p>${rows}
   <div class="two">${fld("تاريخ الاستلام",`<input id="r_d" type="date" value="${todayKey()}">`)}${fld("عدد الأفرخ المستلمة",`<input id="r_q" inputmode="numeric">`)}</div>
   <div class="acts"><button class="btn gray" onclick="closeModal()">إغلاق</button><button class="btn green" onclick="saveRcv('${id}')">حفظ</button></div>`);
@@ -728,15 +756,17 @@ function renderLog(){
 }
 
 /* ---------- تنبيهات ---------- */
-function isStopped(r){ const t = String(r.total||"").trim(), n = String(r.notes||""); return t === "توقف" || n.includes("توقف") || n.includes("عطل"); }
+function isStopped(r){ return ["stopped","maint","broken"].includes(stOf(r)); }
 function parseDM(s){
  const m = String(s||"").trim().match(/^(\d{1,2})[-\/](\d{1,2})$/); if (!m) return null;
  return new Date(new Date().getFullYear(), +m[2]-1, +m[1]);
 }
 function renderAlerts(){
  const a = [];
- const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine);
- if (stopped.length) a.push(`<div class="alert bad">⛔ ماكينات متوقفة: ${stopped.map(esc).join("، ")}</div>`);
+ const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine + " (" + mstName(stOf(r)) + ")");
+ if (stopped.length) a.push(`<div class="alert bad">⛔ ماكينات خارج الخدمة: ${stopped.map(esc).join("، ")}</div>`);
+ const setupM = Object.values(S.prod).filter(r => stOf(r) === "setup").map(r => r.machine);
+ if (setupM.length) a.push(`<div class="alert warn">🟠 قيد إعداد فئة: ${setupM.map(esc).join("، ")}</div>`);
  const late = ordersArr().filter(isLate);
  if (late.length) a.push(`<div class="alert bad">⏰ أوامر متأخرة عن موعد التسليم: ${late.map(o => esc(o.no)+" ("+esc(o.due)+")").join("، ")}</div>`);
  ordersArr().filter(o => o.status !== "done").forEach(o => stagesOf(o).forEach(s => {
@@ -775,10 +805,10 @@ function stats(){
  $("att-total").value = tot; $("st-att").textContent = tot;
  $("st-s1").textContent = num(a.s1); $("st-s2").textContent = num(a.s2); $("st-sup").textContent = num(a.sup);
  let sum = 0, active = 0; const rows = Object.values(S.prod);
- rows.forEach(r => { sum += rowDaily(r); const t = String(r.total||"").trim(); if (!isStopped(r) && t !== "إعداد" && !String(r.notes||"").includes("تجهيز")) active++; });
+ rows.forEach(r => { sum += rowDaily(r); if (stOf(r) === "active") active++; });
  $("st-prod").textContent = fmt(sum);
  $("st-act").textContent = active + " / " + rows.length;
- $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد";
+ $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة غير نشطة (إعداد/صيانة/توقف/عطل)";
  const tk = todayKey(), prev = Object.keys(S.history||{}).filter(d => d < tk).sort().pop();
  let dl = "";
  if (prev){ const ps = Object.values(S.history[prev]).reduce((s,v) => s+num(v), 0), df = sum - ps; dl = `${df>=0?"▲":"▼"} ${fmt(Math.abs(df))} عن ${prev}`; }
@@ -809,6 +839,12 @@ function onEdit(e){
   }
  }
  paint();
+}
+function onStatus(e){
+ const s = e.target, k = s.dataset.ms; if (!can("prod") || !MST[s.value]) return;
+ S.prod[k].status = s.value; s.dataset.s = s.value;
+ queue({prod:{[k]:{status:s.value}}});
+ addLog(`حالة ${S.prod[k].machine}: ${mstName(s.value)}`); paint();
 }
 function onToggle(e){
  if (!can("maint")) return;
@@ -851,8 +887,8 @@ function exportCSV(){
  const q = v => '"' + String(v == null ? "" : v).replace(/"/g,'""') + '"', rows = [];
  rows.push(["تقرير خط الإنتاج 3 - " + new Date().toLocaleString("ar-EG") + (me ? " - " + me.name : "")]);
  rows.push([]); rows.push(["جدول الماكينات"]);
- rows.push(["الماكينة","أمر الإنتاج","الفئة","الإنتاج اليومي","12 PM","3 PM","5 PM","8 PM","الإجمالي","ملاحظات"]);
- Object.values(S.prod).forEach(r => rows.push([r.machine,r.order,r.denom,r.daily,r.t12,r.t3,r.t5,r.t8,r.total,r.notes]));
+ rows.push(["الماكينة","أمر الإنتاج","الفئة","الإنتاج اليومي","12 PM","3 PM","5 PM","8 PM","الإجمالي","حالة الماكينة","ملاحظات"]);
+ Object.values(S.prod).forEach(r => rows.push([r.machine,r.order,r.denom,r.daily,r.t12,r.t3,r.t5,r.t8,r.total,mstName(stOf(r)),r.notes]));
  rows.push([]); rows.push(["تتبع الأوامر"]);
  rows.push(["رقم الأمر","الفئة","الهدف","موعد التسليم","حالة الأمر","المرحلة","الخط","الماكينة","حالة المرحلة","الوارد","المنتَج","التالف","البداية","النهاية","ملاحظات"]);
  ordersArr().forEach(o => stagesOf(o).forEach((s,i) => rows.push([o.no,o.denom,o.target,o.due,o.status==="done"?"منتهي":"نشط",i+1,s.line,s.machine,STATE_L[s.state],s.qin,s.qout,s.waste,s.start,s.end,s.note])));
@@ -900,9 +936,38 @@ const DOMAIN = "@line3.app";
 const EDITOR_EMAIL = "editor" + DOMAIN;   // الحساب الأصلي القديم = مدير النظام
 let tok = null;
 const UNAME_RE = /^[a-z0-9._-]{3,24}$/;
+/* سياسة كلمة السر + قياس القوة + توليد */
+function pwProblem(p){
+ p = String(p||"");
+ if (p.length < 8) return "كلمة السر لا تقل عن 8 أحرف";
+ if (!/[A-Za-z\u0621-\u064A]/.test(p) || !/\d/.test(p)) return "يجب أن تحتوي كلمة السر على حروف وأرقام";
+ if (/^(.)\1+$/.test(p) || /^(12345678|123456789|password|qwerty)/i.test(p)) return "كلمة السر شائعة وسهلة التخمين";
+ return "";
+}
+function pwMeter(){
+ const p = $("cp1").value; let s = 0;
+ if (p.length >= 8) s++; if (p.length >= 12) s++; if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++;
+ $("cpMeter").textContent = p ? "القوة: " + ["ضعيفة جداً","ضعيفة","متوسطة","جيدة","قوية","قوية جداً"][s] : "";
+}
+function togglePw(ids, on){ ids.forEach(i => { $(i).type = on ? "text" : "password"; }); }
+function genPw(){
+ const c = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789", a = new Uint32Array(12); crypto.getRandomValues(a);
+ let p = Array.from(a, x => c[x % c.length]).join(""); if (!/\d/.test(p)) p = p.slice(0,11) + "7";
+ $("nu_pw").value = p;
+}
+/* قفل مؤقت بعد محاولات دخول فاشلة متكررة */
+let fails = 0, lockUntil = 0; try { lockUntil = +localStorage.getItem("l3lock") || 0; } catch(e){}
+function lockLeft(){ return Math.max(0, Math.ceil((lockUntil - Date.now())/1000)); }
+function noteFail(){ fails++; if (fails >= 5){ lockUntil = Date.now() + Math.min(900, 30*Math.pow(2, fails-5))*1000; try { localStorage.setItem("l3lock", String(lockUntil)); } catch(e){} } }
+function resetFails(){ fails = 0; lockUntil = 0; try { localStorage.removeItem("l3lock"); } catch(e){} }
+/* تخزين الجلسة: افتراضياً في الجلسة الحالية فقط، وعلى الجهاز إذا اختار «تذكرني» */
+const remember = () => { try { return localStorage.getItem("l3rem") === "1"; } catch(e){ return false; } };
+function store(k, v){ try { localStorage.removeItem(k); sessionStorage.removeItem(k); (remember() ? localStorage : sessionStorage).setItem(k, v); } catch(e){} }
+function load(k){ try { return sessionStorage.getItem(k) || localStorage.getItem(k); } catch(e){ return null; } }
+function drop(k){ try { localStorage.removeItem(k); sessionStorage.removeItem(k); } catch(e){} }
 const isEditor = email => String(email||"").toLowerCase() === EDITOR_EMAIL;
-function saveTok(){ try { if (tok) localStorage.setItem("l3tok", JSON.stringify(tok)); else { localStorage.removeItem("l3tok"); localStorage.removeItem("l3me"); } } catch(e){} }
-function saveMe(){ try { me ? localStorage.setItem("l3me", JSON.stringify(me)) : localStorage.removeItem("l3me"); } catch(e){} }
+function saveTok(){ if (tok) store("l3tok", JSON.stringify(tok)); else { drop("l3tok"); drop("l3me"); } }
+function saveMe(){ if (me) store("l3me", JSON.stringify(me)); else drop("l3me"); }
 function setTok(j){
  tok = {id:j.idToken || j.id_token, refresh:j.refreshToken || j.refresh_token,
   uid:j.localId || j.user_id || (tok && tok.uid) || "",
@@ -968,6 +1033,8 @@ function closePw(){ $("pwModal").classList.remove("open"); }
 async function doLogin(){
  const btn = $("loginBtn"), err = $("pwErr"); err.textContent = "";
  const u = $("lu").value.trim();
+ { const lk = lockLeft(); if (lk > 0){ err.textContent = "الدخول مقفل مؤقتاً بسبب محاولات خاطئة — حاول بعد " + lk + " ثانية"; return; } }
+ try { localStorage.setItem("l3rem", $("lrem").checked ? "1" : "0"); } catch(e){}
  if (!u || !$("pw").value){ err.textContent = "أدخل اسم المستخدم وكلمة السر"; return; }
  btn.disabled = true;
  try {
@@ -975,9 +1042,9 @@ async function doLogin(){
   const res = await loadProfile(true);
   if (res === "disabled"){ logout(); err.textContent = "هذا الحساب معطّل — راجع مدير النظام"; return; }
   if (!res){ logout(); err.textContent = "الحساب غير مُفعّل في النظام — راجع مدير النظام"; return; }
-  closePw(); $("pw").value = ""; applyAuth(); showWelcome(res.prev); touch();
+  closePw(); $("pw").value = ""; resetFails(); applyAuth(); showWelcome(res.prev); touch();
  } catch(e){
-  logout();
+  logout(); if (e.message === "bad") noteFail();
   err.textContent = e.message === "many" ? "محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة" : (e.message === "bad" ? "اسم المستخدم أو كلمة السر غير صحيحة" : "تعذر الاتصال — تحقق من الإنترنت");
  } finally { btn.disabled = false; }
 }
@@ -995,10 +1062,10 @@ function showWelcome(prev){
  $("welIc").textContent = h < 12 ? "🌅" : (h < 18 ? "☀️" : "🌙");
  $("welH").textContent = greet() + "، مرحباً بك يا " + me.name;
  $("welSub").textContent = "تم تسجيل دخولك بصفة: " + ROLE_L[me.role] + (prev ? " · آخر دخول سابق: " + fdt(prev) : " · أول دخول لك");
- const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine);
+ const stopped = Object.values(S.prod).filter(isStopped).map(r => r.machine + " (" + mstName(stOf(r)) + ")");
  const act = ordersArr().filter(o => o.status !== "done"), late = ordersArr().filter(isLate);
  const l = [];
- l.push(stopped.length ? `<div class="bad">⛔ ماكينات متوقفة (${stopped.length}): ${stopped.map(esc).join("، ")}</div>` : `<div class="ok">✅ جميع ماكينات الخط تعمل</div>`);
+ l.push(stopped.length ? `<div class="bad">⛔ ماكينات خارج الخدمة (${stopped.length}): ${stopped.map(esc).join("، ")}</div>` : `<div class="ok">✅ جميع ماكينات الخط تعمل</div>`);
  l.push(`<div>📦 أوامر نشطة: <b>${act.length}</b>${late.length ? ` · <span style="color:var(--bad)">متأخرة: ${late.length}</span>` : ""}</div>`);
  if (S.handover && S.handover.trim()) l.push(`<div>📝 ملاحظة التسليم${S.handoverBy ? " (" + esc(S.handoverBy) + ")" : ""}: ${esc(S.handover.trim().slice(0,160))}${S.handover.trim().length > 160 ? "…" : ""}</div>`);
  $("welL").innerHTML = l.join("");
@@ -1007,19 +1074,28 @@ function showWelcome(prev){
 function closeWel(){ $("wModal").classList.remove("open"); }
 
 /* ---------- تغيير كلمة السر ---------- */
-function openPwChange(){ $("cp1").value = ""; $("cp2").value = ""; $("cpMsg").textContent = ""; $("cpModal").classList.add("open"); $("cp1").focus(); }
+function openPwChange(){ $("cp0").value = ""; $("cp1").value = ""; $("cp2").value = ""; $("cpMeter").textContent = ""; togglePw(["cp0","cp1","cp2"], false); $("cpMsg").textContent = ""; $("cpModal").classList.add("open"); $("cp1").focus(); }
 function closePwChange(){ $("cpModal").classList.remove("open"); }
 async function doPwChange(){
- const a = $("cp1").value, b = $("cp2").value, m = $("cpMsg"); m.style.color = "var(--bad)";
- if (a.length < 6){ m.textContent = "كلمة السر لا تقل عن 6 أحرف"; return; }
+ const o = $("cp0").value, a = $("cp1").value, b = $("cp2").value, m = $("cpMsg"), btn = $("cpBtn"); m.style.color = "var(--bad)";
+ if (!me || !tok){ sessionEnded(); return; }
+ if (!o){ m.textContent = "أدخل كلمة السر الحالية"; return; }
+ const pr = pwProblem(a); if (pr){ m.textContent = pr; return; }
+ if (a === o){ m.textContent = "كلمة السر الجديدة يجب أن تختلف عن الحالية"; return; }
  if (a !== b){ m.textContent = "كلمتا السر غير متطابقتين"; return; }
+ btn.disabled = true; m.textContent = "";
  try {
-  const t = await getToken();
-  const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:update?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({idToken:t, password:a, returnSecureToken:true})});
+  /* إعادة التحقق من كلمة السر الحالية قبل التغيير */
+  const rr = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:tok.email, password:o, returnSecureToken:true})});
+  if (!rr.ok){ const e0 = authErr(await rr.json().catch(() => ({}))); m.textContent = e0.includes("TOO_MANY") ? "محاولات كثيرة — انتظر قليلاً" : "كلمة السر الحالية غير صحيحة"; return; }
+  const sj = await rr.json();
+  const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:update?key=" + API_KEY, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({idToken:sj.idToken, password:a, returnSecureToken:true})});
   const j = await r.json();
-  if (!r.ok){ const e = authErr(j); m.textContent = e.includes("CREDENTIAL_TOO_OLD") ? "لأسباب أمنية: سجّل الخروج ثم الدخول وأعد المحاولة" : (e.includes("WEAK") ? "كلمة السر ضعيفة" : "تعذر التغيير"); return; }
-  setTok(j); closePwChange(); toast("✔ تم تغيير كلمة السر");
+  if (!r.ok){ const e = authErr(j); m.textContent = e.includes("WEAK") ? "كلمة السر ضعيفة" : "تعذر تغيير كلمة السر"; return; }
+  setTok(j); ["cp0","cp1","cp2"].forEach(i => $(i).value = ""); closePwChange(); toast("✔ تم تغيير كلمة السر");
+  addLog("تغيير كلمة السر الخاصة بالمستخدم");
  } catch(e){ m.textContent = "تعذر الاتصال"; }
+ finally { btn.disabled = false; }
 }
 
 /* ---------- إدارة المستخدمين (للمدير فقط) ---------- */
@@ -1035,7 +1111,7 @@ async function loadUsers(){
  } catch(e){ box.innerHTML = `<tr><td colspan="6" class="empty">تعذر تحميل المستخدمين — تأكد من تطبيق قواعد الأمان (ملف firebase-rules.json)</td></tr>`; }
 }
 function renderUsers(){
- const ids = Object.keys(USERS).filter(k => USERS[k]).sort((a,b) => String(USERS[a].created||"").localeCompare(String(USERS[b].created||"")));
+ const ids = Object.keys(USERS).filter(k => USERS[k] && SAFEID.test(k)).sort((a,b) => String(USERS[a].created||"").localeCompare(String(USERS[b].created||"")));
  $("uList").innerHTML = ids.length ? ids.map(id => {
   const u = USERS[id], self = me && me.uid === id, on = u.active !== false;
   return `<tr><td><b>${esc(u.name)}</b>${self?' <small>(أنت)</small>':''}</td><td dir="ltr" style="text-align:right">${esc(u.username)}</td>
@@ -1067,7 +1143,7 @@ async function createUser(){
  const name = $("nu_name").value.trim().replace(/\s+/g," "), un = $("nu_user").value.trim().toLowerCase(), pw = $("nu_pw").value, role = $("nu_role").value;
  if (!AR_RE.test(name) || LAT_RE.test(name)){ msg.textContent = "الاسم الظاهر يجب أن يكون بالعربية فقط"; return; }
  if (!UNAME_RE.test(un)){ msg.textContent = "اسم المستخدم: 3–24 حرفاً إنجليزياً صغيراً أو أرقاماً أو (. _ -)"; return; }
- if (pw.length < 6){ msg.textContent = "كلمة السر لا تقل عن 6 أحرف"; return; }
+ { const pr = pwProblem(pw); if (pr){ msg.textContent = pr; return; } }
  if (!ROLE_L[role]){ msg.textContent = "اختر الدور"; return; }
  btn.disabled = true; msg.textContent = "";
  try {
@@ -1091,7 +1167,7 @@ async function createUser(){
 }
 
 /* ---------- خروج تلقائي عند عدم النشاط ---------- */
-const IDLE_MS = 30*60*1000; let lastAct = Date.now();
+const IDLE_MS = 15*60*1000; let lastAct = Date.now();
 function touch(){ lastAct = Date.now(); }
 ["click","keydown","touchstart","mousemove"].forEach(ev => document.addEventListener(ev, touch, {passive:true}));
 setInterval(() => { if (me && !Object.keys(pending).length && !writing && Date.now() - lastAct > IDLE_MS){ logout("🔒 تم تسجيل الخروج تلقائياً لعدم النشاط"); toast("تم تسجيل الخروج تلقائياً لعدم النشاط"); } }, 30000);
@@ -1137,11 +1213,11 @@ function pullSoon(){ clearTimeout(pullTimer); pullTimer = setTimeout(pull, 300);
 
 function connect(){
  try {
-  const t = JSON.parse(localStorage.getItem("l3tok") || "null");
+  const t = JSON.parse(load("l3tok") || "null");
   if (t && t.refresh){
    tok = t;
    if (!tok.uid || !tok.email){ tok.exp = 0; tok.email = tok.email || EDITOR_EMAIL; }   // جلسة قديمة: كانت للحساب الأصلي
-   const m = JSON.parse(localStorage.getItem("l3me") || "null"); if (m && m.uid) me = m;
+   const m = JSON.parse(load("l3me") || "null"); if (m && m.uid) me = m;
   }
  } catch(e){}
  applyAuth();
