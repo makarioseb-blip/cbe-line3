@@ -150,6 +150,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
   <button class="btn pur" id="usersBtn" style="display:none" onclick="openUsers()">👥 المستخدمون</button>
   <button class="btn gray" id="pwBtn" style="display:none" onclick="openPwChange()">🔑 كلمة السر</button>
   <button class="btn green" onclick="exportCSV()">⬇️ تصدير Excel</button>
+  <button class="btn gray" onclick="backupJSON()" title="نسخة احتياطية كاملة من البيانات">💾 نسخة احتياطية</button>
   <button class="btn org" onclick="printReport()">🖨️ تقرير اليوم</button>
   <button class="btn" onclick="openQR()">📱 باركود</button>
   <button class="btn gray" onclick="toggleTheme()" title="الوضع الليلي / النهاري">🌓</button>
@@ -170,6 +171,8 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <div class="ft"><span id="st-upd">آخر تحديث: —</span><span id="st-delta"></span></div></div>
   <div class="stat" style="--c:#0891b2"><div class="row"><div><p>أوامر الإنتاج النشطة</p><h3 id="st-ord">0</h3></div><span class="ic">📦</span></div>
    <div class="ft" id="st-ordmsg">—</div></div>
+  <div class="stat" style="--c:#0e7490"><div class="row"><div><p>خام مستلم لم يُطبع بعد</p><h3 id="st-raw">0</h3></div><span class="ic">📄</span></div>
+   <div class="ft" id="st-rawmsg">—</div></div>
   <div class="stat" style="--c:#9333ea"><div class="row"><div><p>حالة الصيانة الدورية</p><h3 id="st-maint">—</h3></div><span class="ic">🛠️</span></div>
    <div class="ft">تتحدث حسب حالة فحص الماكينات</div></div>
  </div>
@@ -178,7 +181,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
   <div class="ch" style="background:var(--blue)"><h2>📋 جدول ماكينات الإنتاج (خط 3) - Production Log</h2>
    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>⚡ حفظ ومزامنة مباشرة بين جميع المستخدمين</span><button class="btn org sm noprint" id="closeDayBtn" style="display:none" onclick="closeDay()">📅 إغلاق اليوم وبدء يوم جديد</button></div></div>
   <div class="scroll"><table>
-   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الإنتاج</th><th>ملاحظات / الحالة</th></tr></thead>
+   <thead><tr><th>اسم الماكينة</th><th>رقم أمر الإنتاج</th><th>الفئة المنتجة</th><th>الإنتاج اليومي (آخر قراءة تراكمية)</th><th>12 PM</th><th>3 PM</th><th>5 PM</th><th>8 PM</th><th>إجمالي الأمر (≤ الأفرخ)</th><th>ملاحظات / الحالة</th></tr></thead>
    <tbody id="prod"></tbody></table></div>
   <datalist id="ordList"></datalist>
  </section>
@@ -198,6 +201,11 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
    <button class="btn green noprint" id="newOrdBtn" onclick="openNew()">➕ أمر إنتاج جديد</button>
   </div>
   <div class="olist" id="orders"></div>
+ </section>
+
+ <section class="card">
+  <div class="ch" style="background:#0e7490"><h2>📦 الكميات المتاحة بين الماكينات</h2><span>ما أنهته ماكينة ولم تستهلكه التالية بعد</span></div>
+  <div class="scroll"><table class="utbl"><thead><tr><th>الأمر</th><th>الفئة</th><th>خارجة من</th><th>بانتظار</th><th>الكمية المتاحة</th></tr></thead><tbody id="wip"></tbody></table></div>
  </section>
 
  <section class="card">
@@ -302,7 +310,7 @@ footer{background:var(--dark);color:#cbd5e1;text-align:center;padding:16px;font-
 </div></div>
 
 <div id="oModal" class="modal"><div class="box form" id="oBox"></div></div>
-<datalist id="m3list"></datalist>
+<datalist id="m3list"></datalist><datalist id="mlist"></datalist>
 <datalist id="denList"><option value="5 جنيه مصري"><option value="10 جنيه مصري"><option value="20 جنيه مصري"><option value="50 جنيه مصري"><option value="100 جنيه مصري"><option value="200 جنيه مصري"></datalist>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -335,7 +343,7 @@ const DEF = {
   "2026-10-14": { "Super Simultan 3": 250, "Super Orlof Intaglio 6": 800, "Check Numero Protecta 3": 750000 },
   "2026-10-15": { "Super Simultan 3": 265, "Super Orlof Intaglio 6": 870, "Check Numero Protecta 3": 806282 }
  },
- days: {}, orders: {}, log: {}, handover: "", handoverAt: "",
+ days: {}, orders: {}, log: {}, plog: {}, handover: "", handoverAt: "",
  updatedAt: "", updatedBy: ""
 };
 const S = JSON.parse(JSON.stringify(DEF));
@@ -354,6 +362,70 @@ const COLS = [["order","w"],["denom","w"],["daily","n"],["t12",""],["t3",""],["t
 const ATT = [["s1","الوردية الأولى"],["s2","الوردية الثانية"],["s3","الوردية الثالثة"],["abs","الغياب"],["exc","إجازات واستئذان"],["sup","الإشراف"]];
 const STATE_L = {waiting:"بالانتظار", running:"قيد التشغيل", done:"منتهية"};
 const STATE_I = {waiting:"⏳", running:"▶️", done:"✔"};
+/* ---------- خطوط المطبعة الأربعة وتسلسل المراحل ---------- */
+const LINES = {
+ 1:["Super Simultan 1","Super Orlof Intaglio 1","Super Orlof Intaglio 2","Nota screen 1","Check Numero Protecta 1"],
+ 2:["Simultan 2","Intaglio 3","Intaglio 4","Nota screen 2","Check Numero Protecta 2"],
+ 3:["Super Simultan 3","Super Orlof Intaglio 5","Super Orlof Intaglio 6","Opti Nota 1","Check Numero Protecta 3"],
+ 4:["Simultan 4","Intaglio 7","Intaglio 8","Check Numero Protecta 4"]};
+const SEQ = ["sim","io","ie","nota","num"];   // Simultan ← Intaglio فردي ← Intaglio زوجي ← Nota (اختياري) ← ترقيم
+const allMach = ln => LINES[ln] || [];
+function machType(n){ n = String(n||""); if (/simultan/i.test(n)) return "sim"; const m = n.match(/intaglio\s*(\d+)/i); if (m) return (+m[1])%2 ? "io" : "ie"; if (/nota/i.test(n)) return "nota"; if (/numero/i.test(n)) return "num"; return ""; }
+const machFor = (ln, t) => allMach(ln).find(m => machType(m) === t) || "";
+function nextStep(o, c){
+ let n = SEQ.indexOf(machType(c.machine)); if (n < 0) return {end:false, line:c.line, machine:""};
+ n++; if (SEQ[n] === "nota" && (o.nota !== "yes" || !machFor(c.line,"nota"))) n++;
+ return n >= SEQ.length ? {end:true, line:c.line} : {end:false, line:c.line, machine:machFor(c.line, SEQ[n])};
+}
+/* ---------- الإنتاج: اليومي = مجموع الفترات، والإجمالي = مجموع الأيام بحد أقصى كمية الأفرخ ---------- */
+const HR = ["t12","t3","t5","t8"], PK = {};
+const pkey = (m, o) => safeKey(m) + "__" + (safeKey(String(o||"").trim()) || "-");
+function hasHrs(r){ return HR.some(f => { const x = String(r[f] == null ? "" : r[f]).trim(); return x !== "" && x !== "-"; }); }
+function rowDaily(r){ if (!hasHrs(r)) return num(r.daily); for (const f of ["t8","t5","t3","t12"]){ const x = String(r[f] == null ? "" : r[f]).trim(); if (x !== "" && x !== "-") return num(x); } return 0; }
+function orderByNo(no){ no = String(no||"").trim(); const a = ordersArr().filter(o => o.no === no); return a.find(o => o.status !== "done") || a[0]; }
+function capOf(no){ const o = orderByNo(no); return o ? num(o.target) : 0; }
+function plogSum(m, no){ const k = pkey(m, no); let t = 0; for (const d in (S.plog||{})) t += num(S.plog[d] && S.plog[d][k]); return t; }
+function rowTotal(r){ const t = plogSum(r.machine, r.order); if (!t) return r.total == null ? "" : r.total; return Math.min(t, rowCap(r)); }
+function syncPlog(k){
+ const r = S.prod[k], td = todayKey(), nk = pkey(r.machine, r.order), d = rowDaily(r), old = PK[k], mk = safeKey(r.machine);
+ S.plog = S.plog || {}; S.plog[td] = S.plog[td] || {};
+ const p = {plog:{[td]:{}}, prod:{[k]:{daily:String(d)}}, history:{[td]:{[mk]:d}}};
+ if (old && old !== nk){ delete S.plog[td][old]; p.plog[td][old] = null; }
+ if (d > 0 || S.plog[td][nk] !== undefined){ S.plog[td][nk] = d; p.plog[td][nk] = d; }
+ PK[k] = nk; r.daily = String(d); S.history = S.history || {}; S.history[td] = S.history[td] || {}; S.history[td][mk] = d;
+ queue(p);
+}
+const rcvSum = o => Object.values(o.rcv||{}).reduce((t,x) => t + (x ? num(x.q) : 0), 0);
+const rawBase = o => o.rcvOn ? rcvSum(o) : num(o.target);
+function allowed(o, s){   // أقصى كمية يمكن للمرحلة إنتاجها = المتاح لها من الخام المستلم أو من ناتج الماكينة السابقة
+ const st = stagesOf(o), i = st.findIndex(x => x.k === s.k);
+ if (i <= 0){ const tg = num(o.target), cap = o.rcvOn ? Math.min(rcvSum(o), tg > 0 ? tg : Infinity) : (tg > 0 ? tg : Infinity); return Math.max(0, cap - num(s.waste)); }
+ const u = stageOut(o, st[i-1]); return u > 0 ? Math.max(0, u - num(s.waste)) : Infinity;
+}
+function stageOut(o, s){
+ if (String(s.line) === "3"){ const t = plogSum(s.machine, o.no); if (t > 0) return Math.min(t, allowed(o, s)); }
+ return num(s.qout);
+}
+function stageAvail(o, i){ const st = stagesOf(o); const inn = i === 0 ? rawBase(o) : stageOut(o, st[i-1]); return Math.max(0, inn - stageOut(o, st[i]) - num(st[i].waste)); }
+function rowCap(r){ const o = orderByNo(r.order); if (!o) return Infinity; const st = stagesOf(o).find(x => x.machine === r.machine); return st ? allowed(o, st) : (num(o.target) > 0 ? num(o.target) : Infinity); }
+function etaOf(o){   // توقع تاريخ الانتهاء من متوسط آخر 7 أيام إنتاج للمرحلة الحالية (ماكينات خط 3)
+ const c = curStage(o), tg = num(o.target); if (!c || String(c.line) !== "3" || tg <= 0) return null;
+ const k = pkey(c.machine, o.no), v = Object.keys(S.plog||{}).sort().map(d => num(S.plog[d] && S.plog[d][k])).filter(x => x > 0).slice(-7);
+ if (!v.length) return null; const rate = v.reduce((t,x) => t + x, 0) / v.length, days = Math.ceil(Math.max(0, tg - stageOut(o, c)) / rate);
+ const d = new Date(); d.setDate(d.getDate() + days);
+ return {rate:Math.round(rate), days, date:d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate())};
+}
+function stageTbl(o){
+ const s = stagesOf(o); if (!s.length) return ""; const tg = num(o.target), rc = rcvSum(o), ed = me && o.status !== "done";
+ let h = `<div class="meta">📥 الخام: المطلوب <b>${fmt(tg)}</b> · المستلم <b>${fmt(rc)}</b>${tg ? ` · متبقٍ للاستلام <b>${fmt(Math.max(0, tg-rc))}</b>` : ""}${o.rcvOn ? "" : " · <span style=\"color:var(--warn)\">لم يُفعَّل تسجيل الاستلام اليومي</span>"}</div>`;
+ h += `<div class="scroll" style="padding:0"><table class="utbl"><thead><tr><th>#</th><th>الخط</th><th>الماكينة</th><th>الحالة</th><th>وارد (ناتج السابقة)</th><th>منتَج</th><th>تالف</th><th>متاح بانتظارها</th>${ed ? "<th></th>" : ""}</tr></thead><tbody>` +
+  s.map((x,i) => { const q = stageOut(o,x), inn = i === 0 ? rawBase(o) : stageOut(o, s[i-1]), av = stageAvail(o,i);
+   const bt = ed ? `<td style="white-space:nowrap">${can("stage") ? `<button class="btn sm" onclick="openUpdate('${o.id}','${x.k}')">✏️</button> ` : ""}${can("orderMove") && x.state !== "done" ? `<button class="btn org sm" onclick="openTransfer('${o.id}','${x.k}')">➡️</button>` : ""}</td>` : "";
+   return `<tr><td>${i+1}</td><td>${esc(x.line)}</td><td>${esc(x.machine||"—")}</td><td>${STATE_I[x.state]||""} ${STATE_L[x.state]||""}</td><td>${fmt(inn)}</td><td>${fmt(q)}</td><td>${fmt(num(x.waste))}${num(x.waste) && q + num(x.waste) > 0 ? ` <small>(${(num(x.waste)/(q+num(x.waste))*100).toFixed(1)}%)</small>` : ""}</td><td><b>${fmt(av)}</b></td>${bt}</tr>`; }).join("") + `</tbody></table></div>`;
+ const l = s[s.length-1], lo = stageOut(o, l);
+ if (o.status !== "done" && lo > 0){ const n = nextStep(o, l); h += `<div class="meta">⏭️ ناتج آخر مرحلة بانتظار ${n.end ? "التسليم" : (n.machine ? "<b>"+esc(n.machine)+"</b> (خط "+esc(n.line)+")" : "تحديد المرحلة التالية")}: <b>${fmt(lo)}</b></div>`; }
+ return h;
+}
 
 /* ---------- الأدوار والصلاحيات ---------- */
 const ROLE_L = {admin:"مدير النظام", supervisor:"مشرف", operator:"مشغّل"};
@@ -385,11 +457,14 @@ function build(){
 }
 
 function paint(){
+ Object.keys(S.prod).forEach(k => { const ae = document.activeElement; if (ae && ae.dataset && ae.dataset.k === k && ae.dataset.f === "order") return; PK[k] = pkey(S.prod[k].machine, S.prod[k].order); });
  document.querySelectorAll("input[data-g]").forEach(el => {
   const g = el.dataset.g, f = el.dataset.f;
-  el.readOnly = !can(g === "att" ? "att" : g === "maint" ? "maint" : "prod");
+  el.readOnly = !can(g === "att" ? "att" : g === "maint" ? "maint" : "prod") || (g === "prod" && (f === "daily" || f === "total"));
   if (el === document.activeElement) return;
-  const v = g === "att" ? S.att[f] : S[g][el.dataset.k][f];
+  let v = g === "att" ? S.att[f] : S[g][el.dataset.k][f];
+  if (g === "prod" && f === "daily") v = hasHrs(S.prod[el.dataset.k]) ? rowDaily(S.prod[el.dataset.k]) : v;
+  if (g === "prod" && f === "total") v = rowTotal(S.prod[el.dataset.k]);
   const s = v == null ? "" : String(v);
   if (el.value !== s) el.value = s;
  });
@@ -406,7 +481,7 @@ function paint(){
  $("newOrdBtn").style.display = can("orderNew") ? "" : "none";
  $("closeDayBtn").style.display = can("closeDay") ? "" : "none";
  $("ordList").innerHTML = ordersArr().filter(o => o.status !== "done").map(o => `<option value="${esc(o.no)}">${esc(o.denom||"")}</option>`).join("");
- stats(); renderOrders(); renderLog(); renderAlerts(); updateCharts();
+ stats(); renderOrders(); renderWip(); renderLog(); renderAlerts(); updateCharts();
 }
 
 function num(v){
@@ -426,12 +501,21 @@ function ordPlace(o){
 }
 function ordTotals(o){
  const s = stagesOf(o); let waste = 0; s.forEach(x => waste += num(x.waste));
- const last = [...s].reverse().find(x => num(x.qout) > 0);
- const out = last ? num(last.qout) : 0, first = s[0] ? num(s[0].qin) : 0;
+ const last = [...s].reverse().find(x => stageOut(o,x) > 0);
+ const out = last ? stageOut(o,last) : 0, first = num(o.target) || (s[0] ? num(s[0].qin) : 0);
  return {waste, out, first, stages:s.length};
 }
 const isLate = o => o.status !== "done" && o.due && o.due < todayKey();
 
+function renderWip(){
+ const b = $("wip"); if (!b) return; const rows = [];
+ ordersArr().filter(o => o.status !== "done").forEach(o => {
+  const st = stagesOf(o);
+  st.forEach((x,i) => { const av = stageAvail(o,i); if (av > 0 && (i > 0 || o.rcvOn)) rows.push([o, i === 0 ? "🧾 مخزن الخام" : (st[i-1].machine || "خط " + st[i-1].line), (x.machine || "—") + " (خط " + x.line + ")", av]); });
+  const l = st[st.length-1]; if (l){ const out = stageOut(o,l); if (out > 0){ const n = nextStep(o,l); rows.push([o, (l.machine || "—") + " (خط " + l.line + ")", n.end ? "✔ جاهز للتسليم" : (n.machine ? n.machine + " (خط " + n.line + ")" : "لم تُحدَّد"), out]); } }
+ });
+ b.innerHTML = rows.length ? rows.map(([o,f,t,q]) => `<tr><td><b>${esc(o.no)}</b></td><td>${esc(o.denom||"")}</td><td>${esc(f)}</td><td>${esc(t)}</td><td><b>${fmt(q)}</b></td></tr>`).join("") : `<tr><td colspan="5" class="empty">لا توجد كميات معلّقة بين الماكينات.</td></tr>`;
+}
 function renderOrders(){
  const box = $("orders"); if (!box) return;
  const q = ($("ordSearch").value||"").trim().toLowerCase(), f = $("ordFilter").value;
@@ -454,7 +538,7 @@ function renderOrders(){
   const chips = stg.map((s,i) => {
     const isCur = c && s.k === c.k && o.status !== "done";
     return (i ? `<span class="arrow">‹</span>` : "") +
-     `<div class="chip ${s.state} ${String(s.line)==="3"?"":"ext"} ${isCur?"cur":""}"><small>خط ${esc(s.line)}${String(s.line)==="3"?"":" (خارجي)"}</small><b>${esc(s.machine||"—")}</b><em>${STATE_I[s.state]||""} ${STATE_L[s.state]||""}${num(s.qout)||num(s.qin) ? " · " + fmt(num(s.qout)||num(s.qin)) : ""}</em></div>`;
+     `<div class="chip ${s.state} ${String(s.line)==="3"?"":"ext"} ${isCur?"cur":""}"><small>خط ${esc(s.line)}${String(s.line)==="3"?"":" (خارجي)"}</small><b>${esc(s.machine||"—")}</b><em>${STATE_I[s.state]||""} ${STATE_L[s.state]||""}${stageOut(o,s)||num(s.qin) ? " · " + fmt(stageOut(o,s)||num(s.qin)) : ""}</em></div>`;
   }).join("");
   const placeTag = pl === "fin" ? `<span class="tag fin">✔ منتهي</span>` :
     pl === "in3" ? `<span class="tag in3">📍 الآن على خط 3${c&&c.machine?" – "+esc(c.machine):""}</span>` :
@@ -467,6 +551,7 @@ function renderOrders(){
    const b = [];
    if (o.status === "done"){ if (can("orderMove")) b.push(`<button class="btn gray sm" onclick="reopen('${o.id}')">إعادة فتح</button>`); }
    else {
+    if (can("orderMove")) b.push(`<button class="btn green sm" onclick="openRcv('${o.id}')">📥 استلام خام</button>`);
     if (can("stage")) b.push(`<button class="btn sm" onclick="openUpdate('${o.id}')">✏️ تحديث المرحلة الحالية</button>`);
     if (can("orderMove")) b.push(`<button class="btn org sm" onclick="openTransfer('${o.id}')">➡️ نقل لمرحلة/خط آخر</button>`);
    }
@@ -475,10 +560,11 @@ function renderOrders(){
    if (b.length) acts = `<div class="acts noprint" style="justify-content:flex-start">${b.join("")}</div>`;
   }
   return `<div class="oc ${pl}">
-   <div class="ohd"><b>أمر ${esc(o.no)}</b>${o.denom?`<span class="tag">${esc(o.denom)}</span>`:""}${target?`<span class="tag">الهدف: ${fmt(target)}</span>`:""}${placeTag}${incoming}${dueTag}</div>
+   <div class="ohd"><b>أمر ${esc(o.no)}</b>${o.denom?`<span class="tag">${esc(o.denom)}</span>`:""}${target?`<span class="tag">الأفرخ الخام: ${fmt(target)}</span>`:""}${placeTag}${incoming}${dueTag}</div>
    <div class="pipe">${chips}</div>
+   ${stageTbl(o)}
    ${target ? `<div class="bar" title="${pct}%"><i style="width:${pct}%"></i></div>` : ""}
-   <div class="meta"><span>المنتَج حتى الآن: <b>${fmt(t.out)}</b>${target?` (${pct}%)`:""}</span><span>الهالك: <b>${fmt(t.waste)}</b></span>${yld!==null?`<span>نسبة الصلاحية: <b>${yld}%</b></span>`:""}<span>عدد المراحل: <b>${t.stages}</b></span></div>
+   <div class="meta"><span>المنتَج حتى الآن: <b>${fmt(t.out)}</b>${target?` (${pct}%)`:""}</span><span>التالف: <b>${fmt(t.waste)}</b></span>${yld!==null?`<span>نسبة الصلاحية: <b>${yld}%</b></span>`:""}<span>عدد المراحل: <b>${t.stages}</b></span>${(() => { const e = etaOf(o); return e ? `<span>⏳ المتوقع إنهاؤه: <b>${e.date}</b> (${e.days} يوم · ${fmt(e.rate)}/يوم)</span>` : ""; })()}</div>
    ${o.note?`<div class="meta">📝 ${esc(o.note)}</div>`:""}
    ${o.createdBy?`<div class="meta">أُنشئ بواسطة: <b>${esc(o.createdBy)}</b> · ${fdt(o.created)}</div>`:""}
    ${acts}</div>`;
@@ -490,86 +576,112 @@ const fld = (l, inner) => `<label>${l}${inner}</label>`;
 const lineSel = (id, sel, extra) => `<select id="${id}">${[1,2,3,4].map(n => `<option value="${n}"${String(sel)===String(n)?" selected":""}>خط ${n}${n===3?" (هذا الخط)":""}</option>`).join("")}${extra||""}</select>`;
 function openModal(html){ $("oBox").innerHTML = html; $("oModal").classList.add("open"); }
 function closeModal(){ $("oModal").classList.remove("open"); }
-function machInput(id, lineId, val){ return `<input id="${id}" value="${esc(val||"")}" list="m3list" placeholder="اسم الماكينة" autocomplete="off">`; }
+function machInput(id, lineId, val){ return `<input id="${id}" value="${esc(val||"")}" list="mlist" placeholder="اسم الماكينة" autocomplete="off">`; }
 function syncMachList(lineId, inputId){
- const ln = $(lineId).value, inp = $(inputId);
- if (ln === "3") inp.setAttribute("list","m3list"); else inp.removeAttribute("list");
+ const ln = $(lineId).value, inp = $(inputId); if (ln === "end") return;
+ inp.setAttribute("list","mlist"); $("mlist").innerHTML = allMach(ln).map(m => `<option value="${esc(m)}">`).join("");
+ if (inp.value && !allMach(ln).includes(inp.value)) inp.value = machFor(ln, machType(inp.value));
 }
 
 function openNew(){
  if (!can("orderNew")) return;
  openModal(`<h3>➕ أمر إنتاج جديد</h3>
   <div class="two">${fld("رقم الأمر",`<input id="f_no" placeholder="مثال 6005/9">`)}${fld("الفئة",`<input id="f_den" list="denList" placeholder="10 جنيه مصري">`)}</div>
-  <div class="two">${fld("الكمية المستهدفة",`<input id="f_tg" inputmode="numeric">`)}${fld("موعد التسليم (اختياري)",`<input id="f_due" type="date">`)}</div>
+  <div class="two">${fld("كمية الأفرخ الخام للأمر",`<input id="f_tg" inputmode="numeric">`)}${fld("موعد التسليم (اختياري)",`<input id="f_due" type="date">`)}</div>
   <div class="two">${fld("المرحلة الأولى على",lineSel("f_ln",3))}${fld("الماكينة",machInput("f_mc","f_ln"))}</div>
   ${fld("حالة المرحلة الأولى",`<select id="f_st"><option value="waiting">بالانتظار</option><option value="running">قيد التشغيل</option></select>`)}
+  ${fld("هل يمر الأمر على Nota screen؟",`<select id="f_na"><option value="no">لا</option><option value="yes">نعم</option></select>`)}
   ${fld("ملاحظات",`<input id="f_nt">`)}
   <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn green" onclick="saveNew()">حفظ</button></div>`);
- $("f_ln").addEventListener("change", () => syncMachList("f_ln","f_mc"));
+ $("f_mc").value = machFor($("f_ln").value,"sim"); syncMachList("f_ln","f_mc");
+ $("f_ln").addEventListener("change", () => { $("f_mc").value = machFor($("f_ln").value,"sim"); syncMachList("f_ln","f_mc"); });
 }
 function saveNew(){
  const no = $("f_no").value.trim(); if (!no){ alert("أدخل رقم الأمر"); return; }
  if (ordersArr().some(o => o.no === no && o.status !== "done") && !confirm("يوجد أمر نشط بنفس الرقم. هل تريد المتابعة؟")) return;
  const id = "o" + Date.now().toString(36), now = new Date().toISOString(), st = $("f_st").value;
- const o = {no, denom:$("f_den").value.trim(), target:$("f_tg").value.trim(), due:$("f_due").value, created:now, createdBy:me.name, status:"active", note:$("f_nt").value.trim(),
-  stages:{s01:{line:$("f_ln").value, machine:$("f_mc").value.trim(), state:st, qin:"", qout:"", waste:"", start: st==="running"?now:"", end:"", note:""}}};
+ const o = {no, denom:$("f_den").value.trim(), target:$("f_tg").value.trim(), due:$("f_due").value, created:now, createdBy:me.name, status:"active", note:$("f_nt").value.trim(), nota:$("f_na").value, rcvOn:true,
+  stages:{s01:{line:$("f_ln").value, machine:$("f_mc").value.trim(), state:st, qin:$("f_tg").value.trim(), qout:"", waste:"", start: st==="running"?now:"", end:"", note:""}}};
  S.orders[id] = o; queue({orders:{[id]:o}});
  addLog(`أمر جديد ${no} (${o.denom||"—"}) — بدأ على خط ${o.stages.s01.line}${o.stages.s01.machine?" / "+o.stages.s01.machine:""}`);
  closeModal(); paint();
+}
+function openRcv(id){
+ const o = S.orders[id]; if (!o || !can("orderMove")) return;
+ const rows = Object.keys(o.rcv||{}).filter(k => o.rcv[k]).sort().map(k => `<div class="meta"><span>${esc(o.rcv[k].d)} — <b>${fmt(num(o.rcv[k].q))}</b> فرخ</span>${can("orderEdit") ? `<button class="btn red sm" onclick="delRcv('${id}','${k}')">حذف</button>` : ""}</div>`).join("");
+ openModal(`<h3>📥 استلام خام — أمر ${esc(o.no)}</h3><p>المطلوب: ${fmt(num(o.target))} · المستلم حتى الآن: ${fmt(rcvSum(o))}</p>${rows}
+  <div class="two">${fld("تاريخ الاستلام",`<input id="r_d" type="date" value="${todayKey()}">`)}${fld("عدد الأفرخ المستلمة",`<input id="r_q" inputmode="numeric">`)}</div>
+  <div class="acts"><button class="btn gray" onclick="closeModal()">إغلاق</button><button class="btn green" onclick="saveRcv('${id}')">حفظ</button></div>`);
+}
+function saveRcv(id){
+ const o = S.orders[id], q = num($("r_q").value); if (q <= 0){ alert("أدخل كمية صحيحة"); return; }
+ const tg = num(o.target); if (tg > 0 && rcvSum(o) + q > tg && !confirm("إجمالي المستلم سيتجاوز كمية الأمر (" + fmt(tg) + "). متابعة؟")) return;
+ const rid = "r" + Date.now().toString(36), rec = {d:$("r_d").value || todayKey(), q:String(q), by:me.name};
+ o.rcv = o.rcv || {}; o.rcv[rid] = rec; o.rcvOn = true; queue({orders:{[id]:{rcv:{[rid]:rec}, rcvOn:true}}});
+ addLog(`استلام خام أمر ${o.no}: ${fmt(q)} فرخ بتاريخ ${rec.d}`); closeModal(); paint();
+}
+function delRcv(id, k){
+ const o = S.orders[id]; if (!can("orderEdit") || !confirm("حذف هذا الاستلام؟")) return;
+ delete o.rcv[k]; queue({orders:{[id]:{rcv:{[k]:null}}}}); addLog(`حذف استلام خام من أمر ${o.no}`); closeModal(); paint();
 }
 function openEdit(id){
  const o = S.orders[id]; if (!o || !can("orderEdit")) return;
  openModal(`<h3>⚙️ تعديل بيانات الأمر ${esc(o.no)}</h3>
   <div class="two">${fld("رقم الأمر",`<input id="e_no" value="${esc(o.no)}">`)}${fld("الفئة",`<input id="e_den" list="denList" value="${esc(o.denom)}">`)}</div>
-  <div class="two">${fld("الكمية المستهدفة",`<input id="e_tg" inputmode="numeric" value="${esc(o.target)}">`)}${fld("موعد التسليم",`<input id="e_due" type="date" value="${esc(o.due)}">`)}</div>
+  <div class="two">${fld("كمية الأفرخ الخام للأمر",`<input id="e_tg" inputmode="numeric" value="${esc(o.target)}">`)}${fld("موعد التسليم",`<input id="e_due" type="date" value="${esc(o.due)}">`)}</div>
+  ${fld("هل يمر الأمر على Nota screen؟",`<select id="e_na"><option value="no">لا</option><option value="yes"${o.nota==="yes"?" selected":""}>نعم</option></select>`)}
   ${fld("ملاحظات",`<input id="e_nt" value="${esc(o.note)}">`)}
   <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn green" onclick="saveEdit('${id}')">حفظ</button></div>`);
 }
 function saveEdit(id){
  const o = S.orders[id], no = $("e_no").value.trim(); if (!no){ alert("أدخل رقم الأمر"); return; }
- const p = {no, denom:$("e_den").value.trim(), target:$("e_tg").value.trim(), due:$("e_due").value, note:$("e_nt").value.trim()};
+ const p = {no, denom:$("e_den").value.trim(), target:$("e_tg").value.trim(), due:$("e_due").value, note:$("e_nt").value.trim(), nota:$("e_na").value};
  Object.assign(o, p); queue({orders:{[id]:p}}); addLog(`تعديل بيانات أمر ${no}`); closeModal(); paint();
 }
-function openUpdate(id){
- const o = S.orders[id], c = curStage(o); if (!c) return;
+function openUpdate(id, k){
+ const o = S.orders[id], c = k && o.stages[k] ? Object.assign({k}, o.stages[k]) : curStage(o); if (!c) return;
  openModal(`<h3>✏️ تحديث المرحلة — أمر ${esc(o.no)}</h3>
   <p>خط ${esc(c.line)} ${c.machine?"/ "+esc(c.machine):""}</p>
   ${fld("الحالة",`<select id="u_st">${Object.keys(STATE_L).map(k=>`<option value="${k}"${c.state===k?" selected":""}>${STATE_L[k]}</option>`).join("")}</select>`)}
-  <div class="two">${fld("الكمية الواردة للمرحلة",`<input id="u_in" inputmode="numeric" value="${esc(c.qin)}">`)}${fld("الكمية المنتَجة",`<input id="u_out" inputmode="numeric" value="${esc(c.qout)}">`)}</div>
-  ${fld("الهالك",`<input id="u_ws" inputmode="numeric" value="${esc(c.waste)}">`)}
+  <div class="two">${fld("الكمية الواردة للمرحلة",`<input id="u_in" inputmode="numeric" value="${esc(c.qin)}">`)}${fld("الكمية المنتَجة",`<input id="u_out" inputmode="numeric" value="${stageOut(o,c)||esc(c.qout)}">`)}</div>
+  ${fld("التالف",`<input id="u_ws" inputmode="numeric" value="${esc(c.waste)}">`)}
   ${fld("ملاحظات المرحلة",`<input id="u_nt" value="${esc(c.note)}">`)}
   <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn green" onclick="saveUpdate('${id}','${c.k}')">حفظ</button></div>`);
 }
 function saveUpdate(id, k){
  const o = S.orders[id], s = o.stages[k], now = new Date().toISOString(), old = s.state;
+ { const i = num($("u_in").value), q = num($("u_out").value), w = num($("u_ws").value); if (i > 0 && q + w > i && !confirm("المنتَج + التالف (" + fmt(q+w) + ") أكبر من الوارد (" + fmt(i) + "). متابعة؟")) return; }
  s.state = $("u_st").value; s.qin = $("u_in").value.trim(); s.qout = $("u_out").value.trim(); s.waste = $("u_ws").value.trim(); s.note = $("u_nt").value.trim();
  if (s.state === "running" && !s.start) s.start = now;
  if (s.state === "done" && !s.end) s.end = now;
  if (s.state !== "done") s.end = "";
  queue({orders:{[id]:{stages:{[k]:s}}}});
- addLog(`أمر ${o.no}: مرحلة خط ${s.line}${s.machine?" / "+s.machine:""} — ${old!==s.state?STATE_L[s.state]+" · ":""}منتَج ${fmt(num(s.qout))} هالك ${fmt(num(s.waste))}`);
+ addLog(`أمر ${o.no}: مرحلة خط ${s.line}${s.machine?" / "+s.machine:""} — ${old!==s.state?STATE_L[s.state]+" · ":""}منتَج ${fmt(num(s.qout))} تالف ${fmt(num(s.waste))}`);
  closeModal(); paint();
 }
-function openTransfer(id){
- const o = S.orders[id], c = curStage(o); if (!c) return;
+function openTransfer(id, k){
+ const o = S.orders[id], c = k && o.stages[k] ? Object.assign({k}, o.stages[k]) : curStage(o); if (!c) return;
  openModal(`<h3>➡️ نقل الأمر ${esc(o.no)}</h3>
   <p>إغلاق المرحلة الحالية (خط ${esc(c.line)}${c.machine?" / "+esc(c.machine):""}) وفتح المرحلة التالية</p>
-  <div class="two">${fld("الكمية المنتَجة بالمرحلة الحالية",`<input id="t_out" inputmode="numeric" value="${esc(c.qout)}">`)}${fld("الهالك",`<input id="t_ws" inputmode="numeric" value="${esc(c.waste)}">`)}</div>
-  ${fld("الوجهة التالية",lineSel("t_ln", 3, `<option value="end">✔ لا توجد مرحلة تالية (إنهاء الأمر)</option>`))}
+  <div class="two">${fld("الكمية المنتَجة بالمرحلة الحالية",`<input id="t_out" inputmode="numeric" value="${stageOut(o,c)||esc(c.qout)}">`)}${fld("التالف",`<input id="t_ws" inputmode="numeric" value="${esc(c.waste)}">`)}</div>
+  ${fld("الوجهة التالية",lineSel("t_ln", c.line, `<option value="end">✔ لا توجد مرحلة تالية (إنهاء الأمر)</option>`))}
   <div id="t_mwrap">${fld("الماكينة التالية",machInput("t_mc","t_ln"))}</div>
   ${fld("ملاحظات النقل",`<input id="t_nt">`)}
+  <label style="display:flex;gap:8px;align-items:center;flex-direction:row"><input type="checkbox" id="t_keep" style="width:auto;min-width:0"> إبقاء المرحلة الحالية مفتوحة (ما زالت تطبع كميات أخرى)</label>
   <div class="acts"><button class="btn gray" onclick="closeModal()">إلغاء</button><button class="btn org" onclick="saveTransfer('${id}','${c.k}')">تأكيد النقل</button></div>`);
+ { const sg = nextStep(o, c); $("t_ln").value = sg.end ? "end" : sg.line; $("t_mc").value = sg.machine || ""; $("t_mwrap").style.display = sg.end ? "none" : ""; if (!sg.end) syncMachList("t_ln","t_mc"); }
  $("t_ln").addEventListener("change", () => { $("t_mwrap").style.display = $("t_ln").value === "end" ? "none" : ""; syncMachList("t_ln","t_mc"); });
 }
 function saveTransfer(id, k){
  const o = S.orders[id], s = o.stages[k], now = new Date().toISOString(), dest = $("t_ln").value;
- s.qout = $("t_out").value.trim(); s.waste = $("t_ws").value.trim(); s.state = "done"; s.end = now; if (!s.start) s.start = now;
+ { const i = num(s.qin), q = num($("t_out").value), w = num($("t_ws").value); if (i > 0 && q + w > i && !confirm("المنتَج + التالف (" + fmt(q+w) + ") أكبر من الوارد (" + fmt(i) + "). متابعة؟")) return; }
+ s.qout = $("t_out").value.trim(); s.waste = $("t_ws").value.trim(); const keep = $("t_keep").checked && dest !== "end"; if (!keep){ s.state = "done"; s.end = now; } if (!s.start) s.start = now;
  const patch = {stages:{[k]:s}};
  if (dest === "end"){ o.status = "done"; patch.status = "done"; addLog(`أمر ${o.no} اكتمل — إجمالي المنتَج ${fmt(ordTotals(o).out)}`); }
  else {
-  const nk = "s" + pad(stagesOf(o).length + 1), mc = $("t_mc").value.trim();
+  const nk = "s" + pad(stagesOf(o).length + 1), mc = $("t_mc").value.trim(), ex = stagesOf(o).find(x => String(x.line) === String(dest) && x.machine === mc);
   const ns = {line:dest, machine:mc, state:"waiting", qin:s.qout, qout:"", waste:"", start:"", end:"", note:$("t_nt").value.trim()};
-  o.stages[nk] = ns; patch.stages[nk] = ns;
+  if (ex) toast("المرحلة موجودة بالفعل — حدّثها من جدول المراحل"); else { o.stages[nk] = ns; patch.stages[nk] = ns; }
   addLog(`نقل أمر ${o.no} من (خط ${s.line}${s.machine?" / "+s.machine:""}) إلى (خط ${dest}${mc?" / "+mc:""}) — كمية ${fmt(num(s.qout))}`);
  }
  queue({orders:{[id]:patch}}); closeModal(); paint();
@@ -592,8 +704,8 @@ function closeDay(){
  S.history = S.history || {}; S.history[td] = S.history[td] || {};
  Object.keys(S.prod).forEach(k => {
   const r = S.prod[k], mk = safeKey(r.machine);
-  snap.prod[k] = {machine:r.machine, order:r.order||"", daily:r.daily||"", t12:r.t12||"", t3:r.t3||"", t5:r.t5||"", t8:r.t8||"", total:r.total||""};
-  S.history[td][mk] = num(r.daily); patch.history[td][mk] = num(r.daily);
+  snap.prod[k] = {machine:r.machine, order:r.order||"", daily:String(rowDaily(r)), t12:r.t12||"", t3:r.t3||"", t5:r.t5||"", t8:r.t8||"", total:String(rowTotal(r)||"")};
+  S.history[td][mk] = rowDaily(r); patch.history[td][mk] = rowDaily(r);
   const z = {daily:"-", t12:"-", t3:"-", t5:"-", t8:"-"};
   Object.assign(r, z); patch.prod[k] = z;
  });
@@ -629,8 +741,23 @@ function renderAlerts(){
  if (late.length) a.push(`<div class="alert bad">⏰ أوامر متأخرة عن موعد التسليم: ${late.map(o => esc(o.no)+" ("+esc(o.due)+")").join("، ")}</div>`);
  ordersArr().filter(o => o.status !== "done").forEach(o => stagesOf(o).forEach(s => {
   const i = num(s.qin) || num(s.qout) + num(s.waste), w = num(s.waste);
-  if (i > 0 && w / i > 0.03) a.push(`<div class="alert warn">⚠️ هالك مرتفع (${(w/i*100).toFixed(1)}%) — أمر ${esc(o.no)} على خط ${esc(s.line)} ${esc(s.machine||"")}</div>`);
+  if (i > 0 && w / i > 0.03) a.push(`<div class="alert warn">⚠️ تالف مرتفع (${(w/i*100).toFixed(1)}%) — أمر ${esc(o.no)} على خط ${esc(s.line)} ${esc(s.machine||"")}</div>`);
  }));
+ Object.values(S.prod).forEach(r => {
+  const o = String(r.order||"").trim(); if (!o || o === "-") return;
+  if (!orderByNo(o)) { a.push(`<div class="alert warn">⚠️ ${esc(r.machine)}: الأمر ${esc(o)} غير مسجل في «تتبع الأوامر» — لا يمكن تطبيق حد كمية الأفرخ</div>`); return; }
+  const t = plogSum(r.machine, o), c = rowCap(r);
+  if (t > c) a.push(`<div class="alert bad">⛔ ${esc(r.machine)}: مجموع إنتاج الأمر ${esc(o)} (${fmt(t)}) تجاوز المتاح لها (${fmt(c)}) من الخام المستلم أو ناتج الماكينة السابقة — الإجمالي مقيَّد بالمتاح، راجع الإدخال</div>`);
+ });
+ Object.values(S.prod).forEach(r => {
+  let mx = 0, bad = false; HR.forEach(f => { const x = String(r[f] == null ? "" : r[f]).trim(); if (x === "" || x === "-") return; const v = num(x); if (v < mx) bad = true; mx = Math.max(mx, v); });
+  if (bad) a.push(`<div class="alert warn">⚠️ ${esc(r.machine)}: قراءة تراكمية أقل من القراءة السابقة (12/3/5/8) — راجع الإدخال</div>`);
+  const o = orderByNo(r.order); if (!o || o.status === "done") return;
+  const st = stagesOf(o), i = st.findIndex(x => x.machine === r.machine); if (i < 0) return;
+  const av = stageAvail(o, i), d = rowDaily(r), left = num(o.target) - stageOut(o, st[i]);
+  if (left > 0 && d > 0 && av < d / 2) a.push(`<div class="alert warn">📉 ${esc(r.machine)} — أمر ${esc(o.no)}: المتاح لها (${fmt(av)}) أقل من نصف إنتاج اليوم، جهّز خاماً أو ناتجاً من المرحلة السابقة</div>`);
+ });
+ ordersArr().filter(o => o.status !== "done" && o.due).forEach(o => { const e = etaOf(o); if (e && e.date > o.due) a.push(`<div class="alert warn">⏳ أمر ${esc(o.no)}: بمعدل ${fmt(e.rate)}/يوم يُتوقع انتهاؤه ${e.date} بعد موعد التسليم ${esc(o.due)}</div>`); });
  const t0 = new Date(); t0.setHours(0,0,0,0);
  const over = [], soon = [];
  Object.values(S.maint).forEach(x => [["wDate","wStat","أسبوعية"],["mDate","mStat","شهرية"]].forEach(([d,st,l]) => {
@@ -648,7 +775,7 @@ function stats(){
  $("att-total").value = tot; $("st-att").textContent = tot;
  $("st-s1").textContent = num(a.s1); $("st-s2").textContent = num(a.s2); $("st-sup").textContent = num(a.sup);
  let sum = 0, active = 0; const rows = Object.values(S.prod);
- rows.forEach(r => { sum += num(r.daily); const t = String(r.total||"").trim(); if (!isStopped(r) && t !== "إعداد") active++; });
+ rows.forEach(r => { sum += rowDaily(r); const t = String(r.total||"").trim(); if (!isStopped(r) && t !== "إعداد" && !String(r.notes||"").includes("تجهيز")) active++; });
  $("st-prod").textContent = fmt(sum);
  $("st-act").textContent = active + " / " + rows.length;
  $("st-actmsg").textContent = active === rows.length ? "جميع ماكينات الخط تعمل" : (rows.length - active) + " ماكينة متوقفة أو قيد الإعداد";
@@ -659,6 +786,8 @@ function stats(){
  const all = ordersArr().filter(o => o.status !== "done"), on3 = all.filter(o => ordPlace(o) === "in3").length;
  $("st-ord").textContent = all.length;
  $("st-ordmsg").textContent = all.length ? `على خط 3: ${on3} · بخط آخر: ${all.length-on3}` : "لا توجد أوامر نشطة";
+ let rawT = 0, rawU = 0; all.forEach(o => { const st = stagesOf(o); rawT += rawBase(o); if (st[0]) rawU += stageOut(o, st[0]); });
+ $("st-raw").textContent = fmt(Math.max(0, rawT - rawU)); $("st-rawmsg").textContent = "المستلم: " + fmt(rawT) + " · المطبوع: " + fmt(rawU);
  const m = Object.values(S.maint), allm = m.length*2, done = m.reduce((s,x)=>s+(x.wStat?1:0)+(x.mStat?1:0),0), el = $("st-maint");
  const full = allm > 0 && done === allm;
  el.textContent = (full ? "مكتملة" : "قيد التنفيذ") + ` (${done}/${allm})`;
@@ -673,18 +802,13 @@ function onEdit(e){
   if (!can(g === "maint" ? "maint" : "prod")) return;
   S[g][k][f] = el.value;
   queue({[g]:{[k]:{[f]:el.value}}});
-  if (g === "prod" && f === "daily"){
-   const td = todayKey(), mk = safeKey(S.prod[k].machine);
-   S.history = S.history || {}; S.history[td] = S.history[td] || {};
-   S.history[td][mk] = num(el.value);
-   queue({history:{[td]:{[mk]:num(el.value)}}});
-  }
+  if (g === "prod" && (HR.includes(f) || f === "order")) syncPlog(k);
   if (g === "prod" && f === "order"){
    const o = ordersArr().find(x => x.no === el.value.trim());
    if (o && o.denom && S.prod[k].denom !== o.denom){ S.prod[k].denom = o.denom; queue({prod:{[k]:{denom:o.denom}}}); paint(); }
   }
  }
- stats(); updateCharts(); renderAlerts();
+ paint();
 }
 function onToggle(e){
  if (!can("maint")) return;
@@ -730,7 +854,7 @@ function exportCSV(){
  rows.push(["الماكينة","أمر الإنتاج","الفئة","الإنتاج اليومي","12 PM","3 PM","5 PM","8 PM","الإجمالي","ملاحظات"]);
  Object.values(S.prod).forEach(r => rows.push([r.machine,r.order,r.denom,r.daily,r.t12,r.t3,r.t5,r.t8,r.total,r.notes]));
  rows.push([]); rows.push(["تتبع الأوامر"]);
- rows.push(["رقم الأمر","الفئة","الهدف","موعد التسليم","حالة الأمر","المرحلة","الخط","الماكينة","حالة المرحلة","الوارد","المنتَج","الهالك","البداية","النهاية","ملاحظات"]);
+ rows.push(["رقم الأمر","الفئة","الهدف","موعد التسليم","حالة الأمر","المرحلة","الخط","الماكينة","حالة المرحلة","الوارد","المنتَج","التالف","البداية","النهاية","ملاحظات"]);
  ordersArr().forEach(o => stagesOf(o).forEach((s,i) => rows.push([o.no,o.denom,o.target,o.due,o.status==="done"?"منتهي":"نشط",i+1,s.line,s.machine,STATE_L[s.state],s.qin,s.qout,s.waste,s.start,s.end,s.note])));
  rows.push([]); rows.push(["الإنتاج اليومي المؤرشف"]);
  const mach = Object.values(S.prod).map(p => p.machine);
@@ -739,9 +863,19 @@ function exportCSV(){
  rows.push([]); rows.push(["أرشيف الحضور (عند إغلاق اليوم)"]);
  rows.push(["التاريخ","وردية 1","وردية 2","وردية 3","غياب","إجازات","إشراف","أُغلق بواسطة"]);
  Object.keys(S.days||{}).sort().forEach(d => { const x = S.days[d], a = x.att || {}; rows.push([d,a.s1,a.s2,a.s3,a.abs,a.exc,a.sup,x.by]); });
+  rows.push([]); rows.push(["استلام الخام"]); rows.push(["رقم الأمر","التاريخ","عدد الأفرخ","بواسطة"]);
+ ordersArr().forEach(o => Object.keys(o.rcv||{}).sort().forEach(k => { const x = o.rcv[k]; if (x) rows.push([o.no, x.d, x.q, x.by]); }));
+ rows.push([]); rows.push(["الإنتاج اليومي لكل ماكينة وأمر"]); rows.push(["التاريخ","الماكينة / الأمر","الكمية"]);
+ Object.keys(S.plog||{}).sort().forEach(d => Object.keys(S.plog[d]||{}).forEach(k => rows.push([d, k.replace("__"," / "), S.plog[d][k]])));
+ rows.push([]); rows.push(["الكميات المتاحة بين الماكينات"]); rows.push(["الأمر","رقم المرحلة","الماكينة","المتاح"]);
+ ordersArr().filter(o => o.status !== "done").forEach(o => stagesOf(o).forEach((x,i) => rows.push([o.no, i+1, x.machine, stageAvail(o,i)])));
  const blob = new Blob(["\uFEFF" + rows.map(r => r.map(q).join(",")).join("\r\n")], {type:"text/csv;charset=utf-8"});
  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "line3-report-" + todayKey() + ".csv";
  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function backupJSON(){
+ const b = new Blob([JSON.stringify(S, null, 1)], {type:"application/json"}), a = document.createElement("a");
+ a.href = URL.createObjectURL(b); a.download = "line3-backup-" + todayKey() + ".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function printReport(){
  $("printBy").textContent = "أُعدّ التقرير في: " + new Date().toLocaleString("ar-EG") + (me ? " — بواسطة: " + me.name : "");
@@ -990,8 +1124,8 @@ async function pull(){
   const d = await r.json();
   if (d){
    const keep = JSON.parse(JSON.stringify(pending));
-   S.orders = d.orders || {}; S.log = d.log || {};
-   const dd = Object.assign({}, d); delete dd.orders; delete dd.log;
+   S.orders = d.orders || {}; S.log = d.log || {}; S.plog = d.plog || {};
+   const dd = Object.assign({}, d); delete dd.orders; delete dd.log; delete dd.plog;
    merge(S, dd); merge(S, keep);
   }
   if (!Object.keys(pending).length && !writing) okStatus();
